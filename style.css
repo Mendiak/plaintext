@@ -1,0 +1,270 @@
+/* ── Reset ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  background: #f8f7f4;
+  color: #1a1916;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+button, input, select { font: inherit; }
+img { max-width: 100%; display: block; }
+
+/* ── App shell ─────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 48px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Header ────────────────────────────────────────── */
+.header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid #e2dfd8;
+  background: #faf9f6;
+}
+
+.header__left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.header__title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1a1916;
+}
+
+.header__dot { color: #c0bdb6; font-size: 0.7rem; }
+
+.header__sub {
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: #9a9790;
+  letter-spacing: 0.01em;
+}
+
+.header__version {
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: #c0bdb6;
+  border: 1px solid #e2dfd8;
+  padding: 0.2rem 0.55rem;
+  text-transform: uppercase;
+}
+
+/* ── Sidebar ───────────────────────────────────────── */
+.sidebar {
+  grid-column: 1;
+  padding: 1.5rem 1.25rem;
+  border-right: 1px solid #e2dfd8;
+  background: #faf9f6;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+}
+
+/* ── Labels ────────────────────────────────────────── */
+.label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #a09d97;
+  margin-bottom: 0.45rem;
+}
+
+/* ── Control groups ────────────────────────────────── */
+.control-group { display: flex; flex-direction: column; }
+
+/* ── Selects ───────────────────────────────────────── */
+.select {
+  width: 100%;
+  padding: 0.55rem 2rem 0.55rem 0.7rem;
+  border: 1px solid #dedad2;
+  background: #fff;
+  color: #1a1916;
+  font-size: 0.8rem;
+  font-weight: 400;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23a09d97'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  border-radius: 0;
+}
+.select:hover  { border-color: #b0ada7; }
+.select:focus  { outline: none; border-color: #1a1916; }
+
+/* ── Tabs ─────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #dedad2;
+  margin-bottom: 0.75rem;
+}
+
+.tab {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #a09d97;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab:hover { color: #1a1916; }
+
+.tab--active {
+  color: #1a1916;
+  border-bottom-color: #1a1916;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content--active {
+  display: block;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 1px solid #dedad2;
+  background: transparent;
+  color: #1a1916;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, border-color 0.15s;
+  border-radius: 0;
+}
+.btn:hover  { background: #f0ede8; }
+.btn:active { background: #e8e4de; }
+
+.btn--primary {
+  background: #1a1916;
+  color: #f8f7f4;
+  border-color: #1a1916;
+}
+.btn--primary:hover  { background: #2e2c28; border-color: #2e2c28; }
+.btn--primary:active { background: #3d3b36; }
+
+/* ── Divider ───────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid #e8e4de;
+}
+
+/* ── Meta rows ─────────────────────────────────────── */
+.meta { display: flex; flex-direction: column; gap: 0.75rem; }
+.meta__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.meta__row .label { margin-bottom: 0; }
+
+.meta__value {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #5a5854;
+  text-transform: capitalize;
+}
+
+/* ── Vibe pill ─────────────────────────────────────── */
+.vibe-pill {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid transparent;
+  transition: all 0.25s;
+}
+.vibe-pill[data-vibe="calm"]    { color: #5c7a6e; border-color: #c2d4ce; background: #f0f6f3; }
+.vibe-pill[data-vibe="chaotic"] { color: #a0422d; border-color: #e8c4b8; background: #fdf4f1; }
+.vibe-pill[data-vibe="serious"] { color: #3d3d3d; border-color: #c8c8c8; background: #f5f5f5; }
+
+/* ── Quote card ────────────────────────────────────── */
+.quote-card {
+  border: 1px solid #e8e4de;
+  background: #fff;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.quote-card__text {
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: #3a3835;
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.quote-card__author {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #a09d97;
+}
+
+/* ── Sidebar footer ────────────────────────────────── */
+.sidebar__footer {
+  font-size: 0.65rem;
+  color: #c0bdb6;
+  letter-spacing: 0.04em;
+  margin-top: auto;
+}
+
+/* ── Canvas area ───────────────────────────────────── */
+.canvas-area {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eae8e3;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+#canvas-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#canvas {
+  display: block;
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.10),
+    0 8px 32px rgba(0,0,0,0.08),
+    0 0 0 1px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s;
+}

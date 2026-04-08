@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Generate beautiful typographic wallpapers from curated quotes. Choose vibe, font, layout — download as PNG." />
+  <title>Plaintext — Typography Wallpapers</title>
+  <!-- App shell font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ── Header ── -->
+    <header class="header">
+      <div class="header__left">
+        <span class="header__title">Plaintext</span>
+        <span class="header__dot">·</span>
+        <span class="header__sub">Quote-driven typographic posters</span>
+      </div>
+      <span class="header__version">v1.0</span>
+    </header>
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+
+      <div class="control-group">
+        <label class="label" for="resolution-select">Resolution</label>
+        <select id="resolution-select" class="select">
+          <option value="desktop">Desktop — 1920 × 1080</option>
+          <option value="mobile">Mobile — 1080 × 1920</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="label" for="font-select">Typeface</label>
+        <select id="font-select" class="select">
+          <!-- populated by JS -->
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="label" for="layout-select">Layout</label>
+        <select id="layout-select" class="select">
+          <option value="editorial">Editorial — left-aligned</option>
+          <option value="ruled">Ruled — centred grid</option>
+          <option value="offset">Offset — asymmetric</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="label">Background</label>
+        <div class="tabs">
+          <button id="tab-solid" class="tab tab--active" type="button">Solid</button>
+          <button id="tab-gradient" class="tab" type="button">Gradient</button>
+        </div>
+        <div id="solid-controls" class="tab-content tab-content--active">
+          <select id="solid-select" class="select">
+            <option value="white">Pure White</option>
+            <option value="cream">Antique Cream</option>
+            <option value="ivory">Warm Ivory</option>
+            <option value="sand">Soft Sand</option>
+            <option value="clay">Grey Clay</option>
+            <option value="slate">Cool Slate</option>
+            <option value="charcoal">Deep Charcoal</option>
+            <option value="black">Pure Black</option>
+          </select>
+        </div>
+        <div id="gradient-controls" class="tab-content">
+          <select id="gradient-select" class="select">
+            <option value="auto">Auto — by Vibe</option>
+            <option value="vibrant">Vibrant — colors</option>
+            <option value="calm">Calm — subtle</option>
+            <option value="chaotic">Chaotic — intense</option>
+            <option value="serious">Serious — dark</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="label" for="ink-select">Ink</label>
+        <select id="ink-select" class="select">
+          <option value="auto">Auto — Contrast</option>
+          <option value="dark">Charcoal Black</option>
+          <option value="deep">Pure Black</option>
+          <option value="light">Ghost White</option>
+          <option value="muted">Steel Grey</option>
+        </select>
+      </div>
+
+      <div class="btn-group">
+        <button id="btn-generate" class="btn btn--primary" title="New Quote" type="button">Next Quote</button>
+        <button id="btn-shuffle" class="btn" title="Randomize Style" type="button">Shuffle</button>
+        <button id="btn-download" class="btn" type="button">Download</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="meta">
+        <div class="meta__row">
+          <span class="label">Vibe</span>
+          <span id="vibe-indicator" class="vibe-pill" data-vibe="">—</span>
+        </div>
+        <div class="meta__row">
+          <span class="label">Layout</span>
+          <span id="layout-current" class="meta__value">—</span>
+        </div>
+      </div>
+
+      <blockquote class="quote-card" aria-live="polite">
+        <p id="quote-preview" class="quote-card__text">Press Generate to create a wallpaper.</p>
+        <footer id="author-preview" class="quote-card__author"></footer>
+      </blockquote>
+
+      <p class="sidebar__footer">50 quotes · 3 vibes · 10 typefaces</p>
+
+    </aside>
+
+    <!-- ── Canvas ── -->
+    <main class="canvas-area">
+      <div id="canvas-wrapper">
+        <canvas id="canvas" role="img" aria-label="Generated wallpaper preview"></canvas>
+      </div>
+    </main>
+
+  </div>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
