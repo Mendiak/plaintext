@@ -108,7 +108,7 @@ function layoutRuled(ctx, quote, vibe, w, h, fontFamily, inkColor) {
   const padX  = w * 0.1;
   const maxW  = w - padX * 2;
 
-  const baseSize = Math.round(w * 0.048);
+  const baseSize = Math.round(w * 0.042);
   const fontStr  = `400 __SIZE__ ${fontFamily}`;
   const { lines, size } = fitFontSize(ctx, quote.text, maxW, 6, baseSize, 20, fontStr);
   const lh = size * 1.5;
