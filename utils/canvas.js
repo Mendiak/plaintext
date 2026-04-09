@@ -58,17 +58,19 @@ function drawBackground(ctx, w, h, colors) {
    Inspired by Swiss typographic posters (Müller-Brockmann).
 ──────────────────────────────────────────────────────────────── */
 
-function layoutEditorial(ctx, quote, vibe, w, h, fontFamily, inkColor) {
+function layoutEditorial(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en') {
   const style = vibeStyles[vibe] ?? vibeStyles.calm;
   const textColor = inkColor || style.textColor;
   const padX = w * 0.1;
   const maxW = w * 0.72;
   const startX = padX;
 
+  const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
+
   // ── font size
   const baseSize = Math.round(w * 0.055);
-  const fontStr = `300 __SIZE__ ${fontFamily}`;
-  const { lines, size } = fitFontSize(ctx, quote.text, maxW, 5, baseSize, 22, fontStr);
+  const fontStr = `${font.weight} __SIZE__ ${font.family}`;
+  const { lines, size } = fitFontSize(ctx, text, maxW, 5, baseSize, 22, fontStr);
   const lh = size * 1.22;
 
   // ── vertical center block
@@ -77,7 +79,7 @@ function layoutEditorial(ctx, quote, vibe, w, h, fontFamily, inkColor) {
   const startY = (h - blockH) / 2;
 
   // ── quote text
-  ctx.font = `300 ${size}px ${fontFamily}`;
+  ctx.font = `${font.weight} ${size}px ${font.family}`;
   ctx.fillStyle = textColor;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
@@ -87,7 +89,7 @@ function layoutEditorial(ctx, quote, vibe, w, h, fontFamily, inkColor) {
 
   // ── author
   const ruleY = startY + lines.length * lh + authorH;
-  ctx.font = `400 ${Math.round(authorH)}px ${fontFamily}`;
+  ctx.font = `${font.weight} ${Math.round(authorH)}px ${font.family}`;
   ctx.fillStyle = style.accentColor;
   ctx.globalAlpha = 0.8;
   ctx.textAlign = 'left';
@@ -102,15 +104,17 @@ function layoutEditorial(ctx, quote, vibe, w, h, fontFamily, inkColor) {
    but subtle — like manuscript paper. Author flushed right.
 ──────────────────────────────────────────────────────────────── */
 
-function layoutRuled(ctx, quote, vibe, w, h, fontFamily, inkColor) {
+function layoutRuled(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en') {
   const style = vibeStyles[vibe] ?? vibeStyles.calm;
   const textColor = inkColor || style.textColor;
   const padX  = w * 0.1;
   const maxW  = w - padX * 2;
 
+  const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
+
   const baseSize = Math.round(w * 0.033);
-  const fontStr  = `400 __SIZE__ ${fontFamily}`;
-  const { lines, size } = fitFontSize(ctx, quote.text, maxW, 6, baseSize, 20, fontStr);
+  const fontStr  = `${font.weight} __SIZE__ ${font.family}`;
+  const { lines, size } = fitFontSize(ctx, text, maxW, 6, baseSize, 20, fontStr);
   const lh = size * 1.5;
 
   // ── center the block
@@ -119,7 +123,7 @@ function layoutRuled(ctx, quote, vibe, w, h, fontFamily, inkColor) {
   const startY  = (h - blockH) / 2;
 
   // ── quote
-  ctx.font = `400 ${size}px ${fontFamily}`;
+  ctx.font = `${font.weight} ${size}px ${font.family}`;
   ctx.fillStyle = textColor;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
@@ -128,7 +132,7 @@ function layoutRuled(ctx, quote, vibe, w, h, fontFamily, inkColor) {
   });
 
   // ── opening & closing quotation marks (large, decorative)
-  ctx.font = `300 ${Math.round(size * 2.5)}px ${fontFamily}`;
+  ctx.font = `${font.weight} ${Math.round(size * 2.5)}px ${font.family}`;
   ctx.fillStyle = textColor;
   ctx.globalAlpha = 0.08;
   ctx.textAlign = 'left';
@@ -154,7 +158,7 @@ function layoutRuled(ctx, quote, vibe, w, h, fontFamily, inkColor) {
    Asymmetric grid. Very Swiss.
 ──────────────────────────────────────────────────────────────── */
 
-function layoutOffset(ctx, quote, vibe, w, h, fontFamily, inkColor) {
+function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en') {
   const style = vibeStyles[vibe] ?? vibeStyles.calm;
   const textColor = inkColor || style.textColor;
 
@@ -163,6 +167,8 @@ function layoutOffset(ctx, quote, vibe, w, h, fontFamily, inkColor) {
   const colRight = w * 0.32;
   const padY     = h * 0.15;
   const maxRightW = w - colRight - w * 0.08;
+
+  const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
 
   // ── vertical line separating columns
   ctx.beginPath();
@@ -177,15 +183,15 @@ function layoutOffset(ctx, quote, vibe, w, h, fontFamily, inkColor) {
 
   // ── quote on the right column
   const baseSize = Math.round(w * 0.038);
-  const fontStr  = `300 __SIZE__ ${fontFamily}`;
-  const { lines, size } = fitFontSize(ctx, quote.text, maxRightW, 7, baseSize, 18, fontStr);
+  const fontStr  = `${font.weight} __SIZE__ ${font.family}`;
+  const { lines, size } = fitFontSize(ctx, text, maxRightW, 7, baseSize, 18, fontStr);
   const lh = size * 1.35;
 
   const authorSize = Math.round(w * 0.014);
   const blockH = lines.length * lh + authorSize * 3.5;
   const startY = (h - blockH) / 2;
 
-  ctx.font = `300 ${size}px ${fontFamily}`;
+  ctx.font = `${font.weight} ${size}px ${font.family}`;
   ctx.fillStyle = textColor;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
@@ -209,33 +215,38 @@ function layoutOffset(ctx, quote, vibe, w, h, fontFamily, inkColor) {
    WATERMARK
 ──────────────────────────────────────────────────────────────── */
 
-/**
- * Loads and caches the watermark image
- */
-const watermarkPromise = new Promise((resolve) => {
-  const img = new Image();
-  img.src = './watermark.png';
-  img.onload = () => resolve(img);
-  img.onerror = () => resolve(null);
-});
+const WATERMARK_PATHS = [
+  "M33.543 22.531h-5.464v8.543h5.464c1.384 0 2.46-.348 3.228-1.043s1.151-1.797 1.151-3.307s-.384-2.586-1.151-3.229s-1.844-.964-3.228-.964",
+  "M31.999 2c-16.568 0-30 13.432-30 30s13.432 30 30 30C48.568 62 62 48.568 62 32S48.568 2 31.999 2m9.398 31.949c-1.699 1.418-4.125 2.125-7.277 2.125h-6.041v10.434h-6.023V17.492h12.458c2.872 0 5.162.748 6.87 2.244c1.707 1.496 2.562 3.813 2.562 6.949c-.001 3.424-.85 5.846-2.549 7.264"
+];
+
+// Initialize Path2D objects for direct vector rendering
+const watermarkPaths = WATERMARK_PATHS.map(d => new Path2D(d));
 
 /**
- * Draws watermark in bottom-right corner
+ * Draws watermark in bottom-right corner using native Path2D for maximum sharpness
  */
-function drawWatermark(ctx, w, h) {
-  watermarkPromise.then((img) => {
-    if (!img) return;
-    
-    const size = Math.max(w, h) * 0.024; // 2.4% of the largest dimension (40% of original 6%)
-    const padding = size * 0.5;
-    const x = w - size - padding;
-    const y = h - size - padding;
+function drawWatermark(ctx, w, h, inkColor) {
+  const size = Math.max(w, h) * 0.024;
+  const padding = size * 0.5;
+  const x = w - size - padding;
+  const y = h - size - padding;
 
-    ctx.save();
-    ctx.globalAlpha = 0.3; // Subtle watermark
-    ctx.drawImage(img, x, y, size, size);
-    ctx.restore();
-  });
+  ctx.save();
+  
+  // Transform context to target position and scale (original SVG is 64x64)
+  ctx.translate(x, y);
+  const scale = size / 64;
+  ctx.scale(scale, scale);
+  
+  // Apply ink color and subtle transparency
+  ctx.fillStyle = inkColor || '#000000';
+  ctx.globalAlpha = 0.3; // Back to subtle subtle
+  
+  // Fill paths directly on the main canvas (vector rendering)
+  watermarkPaths.forEach(path => ctx.fill(path));
+  
+  ctx.restore();
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -246,11 +257,12 @@ function drawWatermark(ctx, w, h) {
  * @param {{ text, author, vibe }} quote
  * @param {{ width, height }} resolution
  * @param {string[]} gradient
- * @param {string} fontFamily - CSS font-family string
+ * @param {object} font - Font object with family and weight
  * @param {string} layout - 'editorial' | 'ruled' | 'offset'
  * @param {string|null} inkColor - typography color override
+ * @param {string} lang - 'en' | 'es'
  */
-export function renderWallpaper(quote, resolution, gradient, fontFamily, layout, inkColor = null) {
+export function renderWallpaper(quote, resolution, gradient, font, layout, inkColor = null, lang = 'en') {
   const { width: w, height: h } = resolution;
   const canvas = document.getElementById('canvas');
   const ctx    = canvas.getContext('2d');
@@ -260,10 +272,10 @@ export function renderWallpaper(quote, resolution, gradient, fontFamily, layout,
 
   drawBackground(ctx, w, h, gradient);
 
-  if (layout === 'ruled')    layoutRuled(ctx, quote, quote.vibe, w, h, fontFamily, inkColor);
-  else if (layout === 'offset') layoutOffset(ctx, quote, quote.vibe, w, h, fontFamily, inkColor);
-  else                          layoutEditorial(ctx, quote, quote.vibe, w, h, fontFamily, inkColor);
+  if (layout === 'ruled')    layoutRuled(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
+  else if (layout === 'offset') layoutOffset(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
+  else                          layoutEditorial(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
 
-  // Draw watermark last so it appears on top
-  drawWatermark(ctx, w, h);
+  // Draw watermark last so it appears on top, with matching ink color
+  drawWatermark(ctx, w, h, inkColor);
 }

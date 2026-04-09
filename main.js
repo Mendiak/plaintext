@@ -66,7 +66,7 @@ const translations = {
     solid: "Sólido",
     gradient: "Gradiente",
     nextQuote: "Siguiente Cita",
-    shuffle: "Mezclar",
+    shuffle: "Aleatorio",
     download: "Descargar",
     vibe: "Ambiente",
     layoutLabel: "Diseño",
