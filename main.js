@@ -114,6 +114,7 @@ const translations = {
 ────────────────────────────────────────────────────────── */
 function updateUI() {
   const t = translations[currentLang];
+  document.documentElement.lang = currentLang;
 
   // Labels
   document.querySelector('label[for="resolution-select"]').textContent = t.resolution;
