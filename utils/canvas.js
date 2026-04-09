@@ -203,16 +203,39 @@ function layoutOffset(ctx, quote, vibe, w, h, fontFamily, inkColor) {
   const authY = startY + lines.length * lh + authorSize;
   ctx.fillText(`\u2014 ${quote.author}`, colRight, authY);
   ctx.globalAlpha = 1;
+}
 
-  // ── thin bottom rule
-  ctx.strokeStyle = style.lineColor;
-  ctx.globalAlpha = 0.12;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(colRight, h * 0.88);
-  ctx.lineTo(w - w * 0.08, h * 0.88);
-  ctx.stroke();
-  ctx.globalAlpha = 1;
+/* ─────────────────────────────────────────────────────────────
+   WATERMARK
+──────────────────────────────────────────────────────────────── */
+
+/**
+ * Loads and caches the watermark image
+ */
+const watermarkPromise = new Promise((resolve) => {
+  const img = new Image();
+  img.src = './watermark.png';
+  img.onload = () => resolve(img);
+  img.onerror = () => resolve(null);
+});
+
+/**
+ * Draws watermark in bottom-right corner
+ */
+function drawWatermark(ctx, w, h) {
+  watermarkPromise.then((img) => {
+    if (!img) return;
+    
+    const size = Math.max(w, h) * 0.024; // 2.4% of the largest dimension (40% of original 6%)
+    const padding = size * 0.5;
+    const x = w - size - padding;
+    const y = h - size - padding;
+
+    ctx.save();
+    ctx.globalAlpha = 0.3; // Subtle watermark
+    ctx.drawImage(img, x, y, size, size);
+    ctx.restore();
+  });
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -240,4 +263,7 @@ export function renderWallpaper(quote, resolution, gradient, fontFamily, layout,
   if (layout === 'ruled')    layoutRuled(ctx, quote, quote.vibe, w, h, fontFamily, inkColor);
   else if (layout === 'offset') layoutOffset(ctx, quote, quote.vibe, w, h, fontFamily, inkColor);
   else                          layoutEditorial(ctx, quote, quote.vibe, w, h, fontFamily, inkColor);
+
+  // Draw watermark last so it appears on top
+  drawWatermark(ctx, w, h);
 }

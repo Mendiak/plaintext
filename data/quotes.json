@@ -149,6 +149,21 @@
   { "text": "Measuring programming progress by lines of code is like measuring aircraft by weight.", "text_es": "Medir progreso por líneas de código es como medir aviones por peso.", "author": "Bill Gates", "vibe": "serious" },
   { "text": "Science is what we can explain to a computer. Art is everything else.", "text_es": "La ciencia es lo que podemos explicar a una computadora. El arte es lo demás.", "author": "Donald Knuth", "vibe": "calm" },
   { "text": "The future is already here — it's just not evenly distributed.", "text_es": "El futuro ya está aquí, solo que no está bien distribuido.", "author": "William Gibson", "vibe": "serious" },
-  { "text": "A user interface is like a joke. If you have to explain it, it's not that good.", "text_es": "Una interfaz es como un chiste. Si hay que explicarlo, no es bueno.", "author": "Anonymous", "vibe": "chaotic" }
-
+  { "text": "A user interface is like a joke. If you have to explain it, it's not that good.", "text_es": "Una interfaz es como un chiste. Si hay que explicarlo, no es bueno.", "author": "Anonymous", "vibe": "chaotic" },
+    { "text": "Information wants to be free.", "text_es": "La información quiere ser libre.", "author": "Stewart Brand", "vibe": "serious" },
+  { "text": "Privacy is necessary for an open society in the electronic age.", "text_es": "La privacidad es necesaria para una sociedad abierta en la era electrónica.", "author": "Eric Hughes", "vibe": "serious" },
+  { "text": "Cypherpunks write code.", "text_es": "Los cypherpunks escriben código.", "author": "Eric Hughes", "vibe": "serious" },
+  { "text": "The Net interprets censorship as damage and routes around it.", "text_es": "La red interpreta la censura como daño y la esquiva.", "author": "John Gilmore", "vibe": "chaotic" },
+  { "text": "The street finds its own uses for things.", "text_es": "La calle encuentra sus propios usos para las cosas.", "author": "William Gibson", "vibe": "chaotic" },
+  { "text": "Trust the math, not the institutions.", "text_es": "Confía en las matemáticas, no en las instituciones.", "author": "Anonymous", "vibe": "serious" },
+  { "text": "Code is law.", "text_es": "El código es ley.", "author": "Lawrence Lessig", "vibe": "serious" },
+  { "text": "Encryption is the ultimate form of non-violent resistance.", "text_es": "El cifrado es la forma definitiva de resistencia no violenta.", "author": "Anonymous", "vibe": "serious" },
+  { "text": "Surveillance is the business model of the internet.", "text_es": "La vigilancia es el modelo de negocio de internet.", "author": "Shoshana Zuboff", "vibe": "serious" },
+  { "text": "You are not the user. You are the product.", "text_es": "No eres el usuario. Eres el producto.", "author": "Anonymous", "vibe": "chaotic" },
+  { "text": "The system isn't broken. It was built this way.", "text_es": "El sistema no está roto. Fue construido así.", "author": "Anonymous", "vibe": "chaotic" },
+  { "text": "The matrix is everywhere. It is all around us.", "text_es": "La matriz está en todas partes. Nos rodea.", "author": "Morpheus", "vibe": "serious" },
+  { "text": "There is no spoon.", "text_es": "No hay cuchara.", "author": "Spoon Boy", "vibe": "chaotic" },
+  { "text": "The sky above the port was the color of television, tuned to a dead channel.", "text_es": "El cielo sobre el puerto tenía el color de una televisión sintonizada en un canal muerto.", "author": "William Gibson", "vibe": "chaotic" },
+  { "text": "Decentralize or be controlled.", "text_es": "Descentraliza o serás controlado.", "author": "Anonymous", "vibe": "serious" },
+  { "text": "The interface is the ideology.", "text_es": "La interfaz es la ideología.", "author": "Anonymous", "vibe": "serious" }
 ]
