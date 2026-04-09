@@ -191,7 +191,7 @@ let currentRes       = RESOLUTIONS.desktop;
 let currentBgType    = 'solid';
 let currentBgValue   = 'white';
 let currentInk       = 'auto';
-let currentLang      = 'en';
+let currentLang      = (navigator.language || navigator.userLanguage).startsWith('es') ? 'es' : 'en';
 
 /* ──────────────────────────────────────────────────────
    FETCH QUOTES & BOOT
@@ -235,7 +235,7 @@ async function init() {
         const isDarkBg = checkIsDark(currentGradient[0]);
         inkColor = isDarkBg ? INK_COLORS.light : INK_COLORS.dark;
       }
-      renderWallpaper(currentQuote, currentRes, currentGradient, currentFont.family, currentLayout, inkColor);
+      renderWallpaper(currentQuote, currentRes, currentGradient, currentFont, currentLayout, inkColor, currentLang);
       
       const wrapW = wrapper.clientWidth;
       const wrapH = wrapper.clientHeight;
@@ -384,6 +384,7 @@ async function init() {
 
     // Language toggle
     langEn.addEventListener('click', () => {
+      if (currentLang === 'en') return;
       currentLang = 'en';
       langEn.classList.add('lang-btn--active');
       langEs.classList.remove('lang-btn--active');
@@ -396,6 +397,7 @@ async function init() {
     });
 
     langEs.addEventListener('click', () => {
+      if (currentLang === 'es') return;
       currentLang = 'es';
       langEs.classList.add('lang-btn--active');
       langEn.classList.remove('lang-btn--active');
@@ -411,6 +413,13 @@ async function init() {
 
     // Boot
     await document.fonts.ready;
+
+    // Set initial language UI
+    if (currentLang === 'es') {
+      langEs.classList.add('lang-btn--active');
+      langEn.classList.remove('lang-btn--active');
+    }
+
     generate(true);
     updateUI();
 
