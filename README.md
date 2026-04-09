@@ -6,7 +6,8 @@ Typography-driven wallpaper generator. Create beautiful, minimal posters from cu
 
 ## Features
 
-- **Curated Quotes**: 50 hand-picked quotes across 3 vibes (calm, chaotic, serious)
+- **Curated Quotes**: 100 hand-picked quotes across 3 vibes (calm, chaotic, serious) in English and Spanish
+- **Bilingual Support**: Toggle between English and Spanish versions
 - **Typography Focus**: 10 Google Fonts optimized for display
 - **Flexible Layouts**: Editorial, ruled, and offset compositions
 - **Background Control**: Solid colors or gradient themes
@@ -17,8 +18,9 @@ Typography-driven wallpaper generator. Create beautiful, minimal posters from cu
 
 1. Open `index.html` in your browser
 2. Click "Next Quote" to generate a new wallpaper
-3. Adjust typeface, layout, and background as desired
-4. Click "Download" to save as PNG
+3. Toggle between English (EN) and Spanish (ES) using the language buttons
+4. Adjust typeface, layout, and background as desired
+5. Click "Download" to save as PNG
 
 ## Customization
 

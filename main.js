@@ -1,22 +1,173 @@
 import { getRandomItem } from './utils/random.js';
-import { FONTS, getGradient, getLayout, INK_COLORS, checkIsDark, LAYOUTS } from './utils/styles.js';
+import { FONTS, FONT_FAMILIES, getGradient, getLayout, INK_COLORS, checkIsDark, LAYOUTS, PAPER_COLORS } from './utils/styles.js';
 import { renderWallpaper } from './utils/canvas.js';
 
 /* ──────────────────────────────────────────────────────
-   GOOGLE FONTS
+   TRANSLATIONS
 ────────────────────────────────────────────────────────── */
-const FONT_FAMILIES = [
-  'Cormorant+Garamond:wght@300;400',
-  'Playfair+Display:wght@400;700',
-  'DM+Serif+Display',
-  'Libre+Caslon+Display',
-  'Space+Grotesk:wght@300;400;600',
-  'Syne:wght@400;700;800',
-  'Outfit:wght@200;300;400',
-  'DM+Mono:wght@300;400',
-  'Fraunces:wght@100;300;400',
-  'Instrument+Serif'
-].join('&family=');
+const translations = {
+  en: {
+    resolution: "Resolution",
+    typeface: "Typeface",
+    layout: "Layout",
+    background: "Background",
+    ink: "Ink",
+    solid: "Solid",
+    gradient: "Gradient",
+    nextQuote: "Next Quote",
+    shuffle: "Shuffle",
+    download: "Download",
+    vibe: "Vibe",
+    layoutLabel: "Layout",
+    pressGenerate: "Press Generate to create a wallpaper.",
+    footer: "100 quotes · 3 vibes · 10 typefaces",
+    resolutions: {
+      desktop: "Desktop — 1920 × 1080",
+      mobile: "Mobile — 1080 × 1920"
+    },
+    layouts: {
+      editorial: "Editorial — left-aligned",
+      ruled: "Ruled — centred grid",
+      offset: "Offset — asymmetric"
+    },
+    backgrounds: {
+      solid: {
+        white: "Pure White",
+        cream: "Antique Cream",
+        ivory: "Warm Ivory",
+        sand: "Soft Sand",
+        clay: "Grey Clay",
+        slate: "Cool Slate",
+        charcoal: "Deep Charcoal",
+        black: "Pure Black"
+      },
+      gradient: {
+        auto: "Auto — by Vibe",
+        vibrant: "Vibrant — colors",
+        calm: "Calm — subtle",
+        chaotic: "Chaotic — intense",
+        serious: "Serious — dark"
+      }
+    },
+    inks: {
+      auto: "Auto — Contrast",
+      dark: "Charcoal Black",
+      deep: "Pure Black",
+      light: "Ghost White",
+      muted: "Steel Grey"
+    }
+  },
+  es: {
+    resolution: "Resolución",
+    typeface: "Tipografía",
+    layout: "Diseño",
+    background: "Fondo",
+    ink: "Tinta",
+    solid: "Sólido",
+    gradient: "Gradiente",
+    nextQuote: "Siguiente Cita",
+    shuffle: "Mezclar",
+    download: "Descargar",
+    vibe: "Ambiente",
+    layoutLabel: "Diseño",
+    pressGenerate: "Presiona Generar para crear un wallpaper.",
+    footer: "100 citas · 3 ambientes · 10 tipografías",
+    resolutions: {
+      desktop: "Escritorio — 1920 × 1080",
+      mobile: "Móvil — 1080 × 1920"
+    },
+    layouts: {
+      editorial: "Editorial — alineado izquierda",
+      ruled: "Reglado — cuadrícula centrada",
+      offset: "Desplazado — asimétrico"
+    },
+    backgrounds: {
+      solid: {
+        white: "Blanco Puro",
+        cream: "Crema Antigua",
+        ivory: "Marfil Cálido",
+        sand: "Arena Suave",
+        clay: "Arcilla Gris",
+        slate: "Pizarra Fresca",
+        charcoal: "Carbón Profundo",
+        black: "Negro Puro"
+      },
+      gradient: {
+        auto: "Auto — por Ambiente",
+        vibrant: "Vibrante — colores",
+        calm: "Calmo — sutil",
+        chaotic: "Caótico — intenso",
+        serious: "Serio — oscuro"
+      }
+    },
+    inks: {
+      auto: "Auto — Contraste",
+      dark: "Negro Carbón",
+      deep: "Negro Puro",
+      light: "Blanco Fantasma",
+      muted: "Gris Acero"
+    }
+  }
+};
+/* ──────────────────────────────────────────────────────
+   UI UPDATE FUNCTION
+────────────────────────────────────────────────────────── */
+function updateUI() {
+  const t = translations[currentLang];
+
+  // Labels
+  document.querySelector('label[for="resolution-select"]').textContent = t.resolution;
+  document.querySelector('label[for="font-select"]').textContent = t.typeface;
+  document.querySelector('label[for="layout-select"]').textContent = t.layout;
+  document.querySelector('label[for="background-select"], label:not([for])').textContent = t.background; // For the background label
+  document.querySelector('label[for="ink-select"]').textContent = t.ink;
+
+  // Tabs
+  document.getElementById('tab-solid').textContent = t.solid;
+  document.getElementById('tab-gradient').textContent = t.gradient;
+
+  // Buttons
+  document.getElementById('btn-generate').textContent = t.nextQuote;
+  document.getElementById('btn-shuffle').textContent = t.shuffle;
+  document.getElementById('btn-download').textContent = t.download;
+
+  // Meta labels
+  document.querySelector('.meta__row:nth-child(1) .label').textContent = t.vibe;
+  document.querySelector('.meta__row:nth-child(2) .label').textContent = t.layoutLabel;
+
+  // Quote preview
+  if (!currentQuote) {
+    document.getElementById('quote-preview').textContent = t.pressGenerate;
+  }
+
+  // Footer
+  document.querySelector('.sidebar__footer').textContent = t.footer;
+
+  // Select options
+  const resolutionSel = document.getElementById('resolution-select');
+  resolutionSel.options[0].text = t.resolutions.desktop;
+  resolutionSel.options[1].text = t.resolutions.mobile;
+
+  const layoutSel = document.getElementById('layout-select');
+  layoutSel.options[0].text = t.layouts.editorial;
+  layoutSel.options[1].text = t.layouts.ruled;
+  layoutSel.options[2].text = t.layouts.offset;
+
+  const solidSel = document.getElementById('solid-select');
+  Object.keys(t.backgrounds.solid).forEach((key, index) => {
+    solidSel.options[index].text = t.backgrounds.solid[key];
+  });
+
+  const gradientSel = document.getElementById('gradient-select');
+  Object.keys(t.backgrounds.gradient).forEach((key, index) => {
+    gradientSel.options[index].text = t.backgrounds.gradient[key];
+  });
+
+  const inkSel = document.getElementById('ink-select');
+  Object.keys(t.inks).forEach((key, index) => {
+    inkSel.options[index].text = t.inks[key];
+  });
+}
 
 const fontLink = document.createElement('link');
 fontLink.rel  = 'stylesheet';
@@ -40,6 +191,7 @@ let currentRes       = RESOLUTIONS.desktop;
 let currentBgType    = 'solid';
 let currentBgValue   = 'white';
 let currentInk       = 'auto';
+let currentLang      = 'en';
 
 /* ──────────────────────────────────────────────────────
    FETCH QUOTES & BOOT
@@ -60,6 +212,8 @@ async function init() {
     const solidSel      = document.getElementById('solid-select');
     const gradientSel   = document.getElementById('gradient-select');
     const inkSel        = document.getElementById('ink-select');
+    const langEn        = document.getElementById('lang-en');
+    const langEs        = document.getElementById('lang-es');
     const vibeEl        = document.getElementById('vibe-indicator');
     const quoteEl       = document.getElementById('quote-preview');
     const authorEl      = document.getElementById('author-preview');
@@ -141,7 +295,8 @@ async function init() {
 
       vibeEl.textContent   = currentQuote.vibe;
       vibeEl.dataset.vibe  = currentQuote.vibe;
-      quoteEl.textContent  = `"${currentQuote.text}"`;
+      const quoteText = currentQuote[currentLang === 'es' ? 'text_es' : 'text'] || currentQuote.text;
+      quoteEl.textContent  = `"${quoteText}"`;
       authorEl.textContent = `— ${currentQuote.author}`;
       const layoutIndicator = document.getElementById('layout-current');
       if (layoutIndicator) layoutIndicator.textContent = currentLayout;
@@ -227,11 +382,37 @@ async function init() {
       draw();
     });
 
+    // Language toggle
+    langEn.addEventListener('click', () => {
+      currentLang = 'en';
+      langEn.classList.add('lang-btn--active');
+      langEs.classList.remove('lang-btn--active');
+      updateUI();
+      if (currentQuote) {
+        const quoteText = currentQuote.text;
+        quoteEl.textContent = `"${quoteText}"`;
+        draw();
+      }
+    });
+
+    langEs.addEventListener('click', () => {
+      currentLang = 'es';
+      langEs.classList.add('lang-btn--active');
+      langEn.classList.remove('lang-btn--active');
+      updateUI();
+      if (currentQuote) {
+        const quoteText = currentQuote.text_es || currentQuote.text;
+        quoteEl.textContent = `"${quoteText}"`;
+        draw();
+      }
+    });
+
     window.addEventListener('resize', draw);
 
     // Boot
     await document.fonts.ready;
     generate(true);
+    updateUI();
 
   } catch (err) {
     console.error('Init failed:', err);

@@ -75,6 +75,8 @@ export const FONTS = [
   }
 ];
 
+export const FONT_FAMILIES = FONTS.map(f => `${f.label.replace(/ /g, '+')}:wght@${f.weight}`).join('&family=');
+
 /**
  * Vibe → visual style mapping.
  */

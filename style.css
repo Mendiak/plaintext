@@ -20,7 +20,6 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
 }
 
-/* ── Header ────────────────────────────────────────── */
 .header {
   grid-column: 1 / -1;
   display: flex;
@@ -35,6 +34,12 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   gap: 0.6rem;
+}
+
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .header__title {
@@ -145,6 +150,35 @@ img { max-width: 100%; display: block; }
 
 .tab-content--active {
   display: block;
+}
+
+/* ── Language toggle ────────────────────────────────── */
+.lang-toggle {
+  display: flex;
+  border: 1px solid #dedad2;
+  background: #fff;
+  border-radius: 0;
+}
+
+.lang-btn {
+  flex: 1;
+  padding: 0.55rem 0.7rem;
+  background: transparent;
+  border: none;
+  color: #a09d97;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.lang-btn:hover { background: #f0ede8; }
+
+.lang-btn--active {
+  background: #1a1916;
+  color: #f8f7f4;
 }
 
 .btn {
