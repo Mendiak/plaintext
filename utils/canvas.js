@@ -84,40 +84,33 @@ function clearInkBleed(ctx) {
    BACKGROUND & TEXTURE
 ──────────────────────────────────────────────────────────────── */
 
+function drawGrain(ctx, w, h) {
+  ctx.save();
+  ctx.fillStyle = '#000000';
+  ctx.globalAlpha = 0.015;
+  for (let i = 0; i < 15000; i++) {
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const s = Math.random() * 1.5;
+    ctx.fillRect(x, y, s, s);
+  }
+  ctx.restore();
+}
+
 function drawBackground(ctx, w, h, colors) {
-  const grad = ctx.createLinearGradient(0, 0, w * 0.6, h);
+  // For portrait (mobile), use a vertical gradient. For landscape, use a diagonal one.
+  const isPortrait = h > w;
+  const grad = isPortrait 
+    ? ctx.createLinearGradient(0, 0, 0, h)
+    : ctx.createLinearGradient(0, 0, w * 0.6, h);
+    
   grad.addColorStop(0, colors[0]);
   grad.addColorStop(1, colors[1]);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
-}
 
-/**
- * Adds high-frequency grain to simulate paper texture.
- */
-function drawPaperTexture(ctx, w, h) {
-  const buffer = document.createElement('canvas');
-  buffer.width = 256;
-  buffer.height = 256;
-  const bCtx = buffer.getContext('2d');
-  const imgData = bCtx.createImageData(256, 256);
-  const data = imgData.data;
-
-  for (let i = 0; i < data.length; i += 4) {
-    const val = Math.random() * 255;
-    data[i] = val;
-    data[i + 1] = val;
-    data[i + 2] = val;
-    data[i + 3] = 15; // very low opacity
-  }
-  bCtx.putImageData(imgData, 0, 0);
-
-  ctx.save();
-  ctx.globalCompositeOperation = 'multiply';
-  const pattern = ctx.createPattern(buffer, 'repeat');
-  ctx.fillStyle = pattern;
-  ctx.fillRect(0, 0, w, h);
-  ctx.restore();
+  // Add subtle texture
+  drawGrain(ctx, w, h);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -129,20 +122,22 @@ function drawPaperTexture(ctx, w, h) {
 function layoutEditorial(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en') {
   const style = vibeStyles[vibe] ?? vibeStyles.calm;
   const textColor = inkColor || style.textColor;
-  const padX = w * 0.12; // slightly more breathing room
-  const maxW = w * 0.65;
+  const isPortrait = h > w;
+  const padX = w * (isPortrait ? 0.1 : 0.12);
+  const maxW = w * (isPortrait ? 0.8 : 0.65);
   const startX = padX;
 
   const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
 
   // ── font size & metrics
-  const baseSize = Math.round(w * 0.055);
+  // Increase font size multiplier for portrait mode
+  const baseSize = isPortrait ? Math.round(w * 0.08) : Math.round(w * 0.055);
   const fontStr = `${font.weight} __SIZE__ ${font.family}`;
-  const { lines, size } = fitFontSize(ctx, text, maxW, 5, baseSize, 22, fontStr);
+  const { lines, size } = fitFontSize(ctx, text, maxW, isPortrait ? 8 : 5, baseSize, 22, fontStr);
   const lh = size * (font.leading || 1.25);
 
   // ── vertical center block
-  const authorH = Math.round(w * 0.018);
+  const authorH = Math.round(w * (isPortrait ? 0.025 : 0.018));
   const blockH = lines.length * lh + authorH * 3.5;
   const startY = (h - blockH) / 2;
 
@@ -188,18 +183,19 @@ function layoutEditorial(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 
 function layoutRuled(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en') {
   const style = vibeStyles[vibe] ?? vibeStyles.calm;
   const textColor = inkColor || style.textColor;
+  const isPortrait = h > w;
   const padX  = w * 0.1;
   const maxW  = w - padX * 2;
 
   const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
 
-  const baseSize = Math.round(w * 0.033);
+  const baseSize = isPortrait ? Math.round(w * 0.05) : Math.round(w * 0.033);
   const fontStr  = `${font.weight} __SIZE__ ${font.family}`;
-  const { lines, size } = fitFontSize(ctx, text, maxW, 6, baseSize, 20, fontStr);
+  const { lines, size } = fitFontSize(ctx, text, maxW, isPortrait ? 10 : 6, baseSize, 20, fontStr);
   const lh = size * (font.leading || 1.4);
 
   // ── center the block
-  const authorSize = Math.round(w * 0.015);
+  const authorSize = Math.round(w * (isPortrait ? 0.022 : 0.015));
   const blockH  = lines.length * lh + authorSize * 3;
   const startY  = (h - blockH) / 2;
 
@@ -250,10 +246,12 @@ function layoutRuled(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en'
 function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en') {
   const style = vibeStyles[vibe] ?? vibeStyles.calm;
   const textColor = inkColor || style.textColor;
+  const isPortrait = h > w;
 
   // Grid split: 28% | 2% gutter | 70%
-  const colLeft  = w * 0.28;
-  const colRight = w * 0.32;
+  // On mobile portrait, we reduce the offset effect to give more room to text
+  const colLeft  = w * (isPortrait ? 0.15 : 0.28);
+  const colRight = w * (isPortrait ? 0.20 : 0.32);
   const padY     = h * 0.15;
   const maxRightW = w - colRight - w * 0.08;
 
@@ -271,12 +269,12 @@ function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en
 
 
   // ── quote on the right column
-  const baseSize = Math.round(w * 0.038);
+  const baseSize = isPortrait ? Math.round(w * 0.06) : Math.round(w * 0.038);
   const fontStr  = `${font.weight} __SIZE__ ${font.family}`;
-  const { lines, size } = fitFontSize(ctx, text, maxRightW, 7, baseSize, 18, fontStr);
+  const { lines, size } = fitFontSize(ctx, text, maxRightW, isPortrait ? 12 : 7, baseSize, 18, fontStr);
   const lh = size * (font.leading || 1.35);
 
-  const authorSize = Math.round(w * 0.014);
+  const authorSize = Math.round(w * (isPortrait ? 0.02 : 0.014));
   const blockH = lines.length * lh + authorSize * 3.5;
   const startY = (h - blockH) / 2;
 
@@ -296,7 +294,7 @@ function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en
 
   // ── author
   ctx.save();
-  const lblSize = Math.round(w * 0.011);
+  const lblSize = Math.round(w * (isPortrait ? 0.016 : 0.011));
   ctx.font = `400 ${lblSize}px 'Space Grotesk', sans-serif`;
   ctx.fillStyle = textColor;
   ctx.globalAlpha = 0.75;
@@ -392,17 +390,14 @@ export function renderWallpaper(quote, resolution, gradient, font, layout, inkCo
   // 1. Base color/gradient
   drawBackground(ctx, w, h, gradient);
   
-  // 2. Paper grain texture
-  drawPaperTexture(ctx, w, h);
-
-  // 3. Typographic composition
+  // 2. Typographic composition
   if (layout === 'ruled')    layoutRuled(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
   else if (layout === 'offset') layoutOffset(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
   else                          layoutEditorial(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
 
-  // 4. Technical folio (metadata)
+  // 3. Technical folio (metadata)
   drawFolio(ctx, w, h, font, quote.vibe, resolution, inkColor);
 
-  // 5. Watermark (branding)
+  // 4. Watermark (branding)
   drawWatermark(ctx, w, h, inkColor);
 }

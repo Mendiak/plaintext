@@ -29,6 +29,9 @@ const translations = {
     shortcuts: "Shortcuts",
     resolutions: {
       desktop: "Desktop — 1920 × 1080",
+      desktop_1440p: "2K / 1440p — 2560 × 1440",
+      desktop_4k: "4K / UHD — 3840 × 2160",
+      desktop_ultrawide: "Ultrawide — 3440 × 1440",
       mobile: "Mobile — 1080 × 1920"
     },
     layouts: {
@@ -92,6 +95,9 @@ const translations = {
     shortcuts: "Atajos",
     resolutions: {
       desktop: "Escritorio — 1920 × 1080",
+      desktop_1440p: "2K / 1440p — 2560 × 1440",
+      desktop_4k: "4K / UHD — 3840 × 2160",
+      desktop_ultrawide: "Ultrawide — 3440 × 1440",
       mobile: "Móvil — 1080 × 1920"
     },
     layouts: {
@@ -193,7 +199,14 @@ function updateUI() {
     });
   };
 
-  updateDropdownOptions('resolution-menu', [t.resolutions.desktop, t.resolutions.mobile]);
+  const resTexts = [
+    t.resolutions.desktop,
+    t.resolutions.desktop_1440p,
+    t.resolutions.desktop_4k,
+    t.resolutions.desktop_ultrawide,
+    t.resolutions.mobile
+  ];
+  updateDropdownOptions('resolution-menu', resTexts);
   updateDropdownOptions('layout-menu', [t.layouts.editorial, t.layouts.ruled, t.layouts.offset]);
   
   const solidTexts = Object.keys(t.backgrounds.solid).map(k => t.backgrounds.solid[k]);
@@ -215,8 +228,11 @@ document.head.appendChild(fontLink);
    STATE
 ────────────────────────────────────────────────────────── */
 const RESOLUTIONS = {
-  desktop: { width: 1920, height: 1080 },
-  mobile:  { width: 1080, height: 1920 }
+  desktop:           { width: 1920, height: 1080 },
+  desktop_1440p:     { width: 2560, height: 1440 },
+  desktop_4k:        { width: 3840, height: 2160 },
+  desktop_ultrawide: { width: 3440, height: 1440 },
+  mobile:            { width: 1080, height: 1920 }
 };
 
 let allQuotes       = [];
