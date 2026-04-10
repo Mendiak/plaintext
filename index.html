@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app">
+  <div class="app" id="app">
 
     <!-- ── Header ── -->
     <header class="header">
@@ -27,12 +27,32 @@
           <button id="lang-en" class="lang-btn lang-btn--active" type="button">EN</button>
           <button id="lang-es" class="lang-btn" type="button">ES</button>
         </div>
-        <span class="header__version">v1.0</span>
+        <button id="btn-dark-mode" class="icon-btn" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button id="btn-zen" class="icon-btn" type="button" title="Zen mode (Z)" aria-label="Enter zen mode">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+        <button id="btn-kbd-hint" class="icon-btn" type="button" title="Keyboard shortcuts (?)" aria-label="Show keyboard shortcuts">?</button>
+        <span class="header__version">v1.1</span>
       </div>
     </header>
 
     <!-- ── Sidebar ── -->
-    <aside class="sidebar">
+    <div class="zen-sensor" id="zen-sensor"></div>
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Vibe filter -->
+      <div class="control-group">
+        <label class="label" id="label-vibe-filter">Vibe</label>
+        <div class="vibe-filter" role="group" aria-labelledby="label-vibe-filter">
+          <button id="vf-all"     class="vf-btn vf-btn--active" type="button" data-vibe="all">All</button>
+          <button id="vf-calm"    class="vf-btn" type="button" data-vibe="calm">Calm</button>
+          <button id="vf-serious" class="vf-btn" type="button" data-vibe="serious">Serious</button>
+          <button id="vf-chaotic" class="vf-btn" type="button" data-vibe="chaotic">Chaotic</button>
+        </div>
+      </div>
 
       <div class="control-group">
         <label class="label" for="resolution-select">Resolution</label>
@@ -98,10 +118,17 @@
         </select>
       </div>
 
+      <!-- Custom quote -->
+      <div class="control-group">
+        <label class="label" for="custom-quote">Custom Quote</label>
+        <textarea id="custom-quote" class="textarea" rows="3" placeholder="Type your own quote…" spellcheck="false"></textarea>
+        <input id="custom-author" class="input" type="text" placeholder="Author (optional)" />
+      </div>
+
       <div class="btn-group">
-        <button id="btn-generate" class="btn btn--primary" title="New Quote" type="button">Next Quote</button>
-        <button id="btn-shuffle" class="btn" title="Randomize Style" type="button">Shuffle</button>
-        <button id="btn-download" class="btn" type="button">Download</button>
+        <button id="btn-generate" class="btn btn--primary" title="New Quote (Space)" type="button">Next Quote</button>
+        <button id="btn-shuffle" class="btn" title="Randomize Style (S)" type="button">Shuffle</button>
+        <button id="btn-download" class="btn" title="Download (D)" type="button">Download</button>
       </div>
 
       <div class="divider"></div>
@@ -117,21 +144,37 @@
         </div>
       </div>
 
-      <blockquote class="quote-card" aria-live="polite">
+      <blockquote class="quote-card" id="quote-card" aria-live="polite" title="Click to copy" tabindex="0" role="button">
         <p id="quote-preview" class="quote-card__text">Press Generate to create a wallpaper.</p>
         <footer id="author-preview" class="quote-card__author"></footer>
+        <span class="quote-card__copy-hint" id="copy-hint" aria-hidden="true">Copied</span>
       </blockquote>
 
-      <p class="sidebar__footer">50 quotes · 3 vibes · 10 typefaces</p>
+      <p class="sidebar__footer" id="sidebar-footer">— quotes · 3 vibes · 10 typefaces</p>
 
     </aside>
 
     <!-- ── Canvas ── -->
-    <main class="canvas-area">
+    <main class="canvas-area" id="canvas-area">
       <div id="canvas-wrapper">
         <canvas id="canvas" role="img" aria-label="Generated wallpaper preview"></canvas>
       </div>
     </main>
+
+    <!-- ── Keyboard shortcuts panel ── -->
+    <div class="kbd-panel" id="kbd-panel" aria-hidden="true">
+      <div class="kbd-panel__inner">
+        <p class="kbd-panel__title">Shortcuts</p>
+        <div class="kbd-panel__row"><kbd>Space</kbd><span>Next Quote</span></div>
+        <div class="kbd-panel__row"><kbd>S</kbd><span>Shuffle style</span></div>
+        <div class="kbd-panel__row"><kbd>D</kbd><span>Download</span></div>
+        <div class="kbd-panel__row"><kbd>1</kbd><span>Editorial layout</span></div>
+        <div class="kbd-panel__row"><kbd>2</kbd><span>Ruled layout</span></div>
+        <div class="kbd-panel__row"><kbd>3</kbd><span>Offset layout</span></div>
+        <div class="kbd-panel__row"><kbd>Z</kbd><span>Zen mode</span></div>
+        <div class="kbd-panel__row"><kbd>Esc</kbd><span>Exit zen / close</span></div>
+      </div>
+    </div>
 
   </div>
   <script type="module" src="main.js"></script>
