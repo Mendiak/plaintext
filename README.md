@@ -1,43 +1,46 @@
 # Plaintext
 
-Typography-driven wallpaper generator. Create beautiful, minimal posters from curated quotes.
+**Typography-driven wallpaper generator.** Create beautiful, minimal posters from curated quotes or your own words.
 
-![Plaintext Preview](https://via.placeholder.com/800x400/1a1916/f8f7f4?text=Plaintext+Wallpaper+Generator)
+![Plaintext Preview](./assets/preview.png)
+
+## Overview
+
+Plaintext is a minimalist web application designed for lovers of typography and literature. It transforms curated quotes into high-quality posters and wallpapers (Desktop & Mobile) using professional layouts inspired by Swiss design and modernist principles.
 
 ## Features
 
-- **Curated Quotes**: 100 hand-picked quotes across 3 vibes (calm, chaotic, serious) in English and Spanish
-- **Bilingual Support**: Toggle between English and Spanish versions
-- **Typography Focus**: 10 Google Fonts optimized for display
-- **Flexible Layouts**: Editorial, ruled, and offset compositions
-- **Background Control**: Solid colors or gradient themes
-- **Resolution Options**: Desktop (1920×1080) and mobile (1080×1920)
-- **One-Click Download**: PNG export for instant use
+- **Curated Quotes**: Over 100 hand-picked quotes across 3 vibes (Calm, Chaotic, Serious) in both English and Spanish.
+- **Custom Quotes**: Enter your own text to create personalized typographic posters.
+- **Typography Focus**: 10 Google Fonts selected for their professional weight and character.
+- **Zen Mode (Z)**: Hide the UI to focus entirely on the composition.
+- **Dark Mode**: A sleek, dark interface for a comfortable creative experience.
+- **Bilingual Support**: Instant toggle between English and Spanish.
+- **Flexible Layouts**: Choose between Editorial (Swiss-style), Ruled (Grid-based), or Offset (Asymmetric) compositions.
+- **Export Everywhere**: Download high-resolution PNGs for desktop or mobile. Filenames and watermarks include `mendiak.github.io/plaintext` for easy reference.
 
-## How to Use
+## Keyboard Shortcuts
 
-1. Open `index.html` in your browser
-2. Click "Next Quote" to generate a new wallpaper
-3. Toggle between English (EN) and Spanish (ES) using the language buttons
-4. Adjust typeface, layout, and background as desired
-5. Click "Download" to save as PNG
+The app is built for speed:
+- `Space`: Generate a new quote
+- `S`: Shuffle all styles (Font, Layout, Background)
+- `D`: Download wallpaper
+- `Z`: Toggle Zen Mode
+- `1`, `2`, `3`: Switch layouts
+- `?`: Toggle shortcuts panel
+- `Esc`: Exit Zen mode or close panels
 
-## Customization
+## Background & Styles
 
-- **Background**: Choose between solid colors (white, cream, ivory, sand, clay, slate, charcoal, black) or gradients (auto, vibrant, calm, chaotic, serious)
-- **Ink**: Auto-contrast or manual colors (charcoal, deep black, ghost white, steel grey)
-- **Shuffle**: Randomize all settings for inspiration
+- **Color Palettes**: Curated solid backgrounds (Clay, Slate, Charcoal, etc.) or dynamic gradients based on the quote's vibe.
+- **Ink Control**: Auto-contrast selection or manual override (Ghost White, Steel Grey, Deep Black).
+- **Proportions**: Optimized for Desktop (1920×1080) and Mobile (1080×1920) aspect ratios.
 
 ## Technologies
 
-- **HTML5 Canvas**: For high-quality rendering
-- **Vanilla JavaScript**: No frameworks, pure ES6 modules
-- **Google Fonts**: Professional typography
-- **CSS Grid**: Clean, responsive layout
-
-## Browser Support
-
-Modern browsers with ES6 module support (Chrome 61+, Firefox 60+, Safari 10.1+).
+- **HTML5 Canvas**: Native vector-path rendering for sharp typography.
+- **Vanilla JavaScript**: Pure ES6 modules, zero dependencies.
+- **CSS3**: Fluid layouts using CSS Grid and Flexbox with a minimalist aesthetic.
 
 ## License
 
