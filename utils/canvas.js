@@ -229,6 +229,18 @@ const watermarkPaths = WATERMARK_PATHS.map(d => new Path2D(d));
 function drawWatermark(ctx, w, h, inkColor) {
   const size = Math.max(w, h) * 0.024;
   const padding = size * 0.5;
+
+  // Draw URL text at bottom-left for subtle branding
+  ctx.save();
+  ctx.font = `400 ${Math.round(size * 0.35)}px 'Space Grotesk', sans-serif`;
+  ctx.fillStyle = inkColor || '#000000';
+  ctx.globalAlpha = 0.25;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('mendiak.github.io/plaintext', padding, h - padding);
+  ctx.restore();
+
+  // Draw logo at bottom-right
   const x = w - size - padding;
   const y = h - size - padding;
 
@@ -241,7 +253,7 @@ function drawWatermark(ctx, w, h, inkColor) {
   
   // Apply ink color and subtle transparency
   ctx.fillStyle = inkColor || '#000000';
-  ctx.globalAlpha = 0.3; // Back to subtle subtle
+  ctx.globalAlpha = 0.3;
   
   // Fill paths directly on the main canvas (vector rendering)
   watermarkPaths.forEach(path => ctx.fill(path));

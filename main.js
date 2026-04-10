@@ -477,7 +477,8 @@ async function init() {
     downloadBtn.addEventListener('click', () => {
       if (!currentQuote) return;
       const a = document.createElement('a');
-      a.download = `plaintext-${currentQuote.author.toLowerCase().replace(/\s/g, '-')}.png`;
+      const authorSlug = currentQuote.author.toLowerCase().replace(/\s/g, '-');
+      a.download = `mendiak.github.io-plaintext-${authorSlug}.png`;
       a.href = canvas.toDataURL('image/png');
       a.click();
     });
