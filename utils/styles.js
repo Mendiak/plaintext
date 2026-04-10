@@ -8,70 +8,90 @@ export const FONTS = [
     label: 'Cormorant Garamond',
     family: "'Cormorant Garamond', Georgia, serif",
     weight: '300',
-    style: 'serif, classical'
+    style: 'serif, classical',
+    leading: 1.25,
+    tracking: 0.01
   },
   {
     id: 'playfair',
     label: 'Playfair Display',
     family: "'Playfair Display', Georgia, serif",
     weight: '400',
-    style: 'serif, editorial'
+    style: 'serif, editorial',
+    leading: 1.2,
+    tracking: -0.01
   },
   {
     id: 'dm-serif',
     label: 'DM Serif Display',
     family: "'DM Serif Display', Georgia, serif",
     weight: '400',
-    style: 'serif, modern'
+    style: 'serif, modern',
+    leading: 1.15,
+    tracking: -0.02
   },
   {
     id: 'libre-caslon',
     label: 'Libre Caslon Display',
     family: "'Libre Caslon Display', Georgia, serif",
     weight: '400',
-    style: 'serif, old-style'
+    style: 'serif, old-style',
+    leading: 1.3,
+    tracking: 0.02
   },
   {
     id: 'space-grotesk',
     label: 'Space Grotesk',
     family: "'Space Grotesk', Helvetica, sans-serif",
     weight: '300',
-    style: 'sans-serif, technical'
+    style: 'sans-serif, technical',
+    leading: 1.4,
+    tracking: 0.03
   },
   {
     id: 'syne',
     label: 'Syne',
     family: "'Syne', Helvetica, sans-serif",
     weight: '700',
-    style: 'sans-serif, geometric'
+    style: 'sans-serif, geometric',
+    leading: 1.05,
+    tracking: -0.05
   },
   {
     id: 'outfit',
     label: 'Outfit',
     family: "'Outfit', Helvetica, sans-serif",
     weight: '200',
-    style: 'sans-serif, clean'
+    style: 'sans-serif, clean',
+    leading: 1.5,
+    tracking: 0.08
   },
   {
     id: 'dm-mono',
     label: 'DM Mono',
     family: "'DM Mono', 'Courier New', monospace",
     weight: '300',
-    style: 'monospace, technical'
+    style: 'monospace, technical',
+    leading: 1.6,
+    tracking: 0.05
   },
   {
     id: 'fraunces',
     label: 'Fraunces',
     family: "'Fraunces', Georgia, serif",
     weight: '100',
-    style: 'serif, expressive'
+    style: 'serif, expressive',
+    leading: 1.1,
+    tracking: -0.03
   },
   {
     id: 'instrument-serif',
     label: 'Instrument Serif',
     family: "'Instrument Serif', Georgia, serif",
     weight: '400',
-    style: 'serif, refined'
+    style: 'serif, refined',
+    leading: 1.18,
+    tracking: 0
   }
 ];
 

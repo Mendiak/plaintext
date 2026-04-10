@@ -215,5 +215,10 @@
   { "text": "User interfaces are like jokes. If you have to explain them, they aren't that good.", "text_es": "Las interfaces de usuario son como los chistes. Si tienes que explicarlas, no son tan buenas.", "author": "Martin LeBlanc", "vibe": "chaotic" },
   { "text": "Technology is best when it brings people together.", "text_es": "La tecnología es mejor cuando une a las personas.", "author": "Matt Mullenweg", "vibe": "calm" },
   { "text": "The problem with troubleshooting is that the trouble shoots back.", "text_es": "El problema de solucionar problemas es que los problemas devuelven el disparo.", "author": "Anonymous", "vibe": "chaotic" },
-  { "text": "Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.", "text_es": "La perfección se logra no cuando no hay nada más que añadir, sino cuando no hay nada más que quitar.", "author": "Antoine de Saint-Exupéry", "vibe": "calm" }
+  { "text": "Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.", "text_es": "La perfección se logra no cuando no hay nada más que añadir, sino cuando no hay nada más que quitar.", "author": "Antoine de Saint-Exupéry", "vibe": "calm" },
+   { "text": "Developers! Developers! Developers! Developers!", "text_es": "¡Desarrolladores! ¡Desarrolladores! ¡Desarrolladores! ¡Desarrolladores!", "author": "Steve Ballmer", "vibe": "chaotic" },
+   { "text": "One more thing...", "text_es": "Una cosa más...", "author": "Steve Jobs", "vibe": "serious" },
+   { "text": "There is no cloud. It's just someone else's computer.", "text_es": "No existe la nube. Es solo el ordenador de otra persona.", "author": "Anonymous", "vibe": "serious" },
+   { "text": "rm -rf /", "text_es": "rm -rf /", "author": "Unix", "vibe": "chaotic" },
+   { "text": "Delete your account.", "text_es": "Elimina tu cuenta.", "author": "Anonymous", "vibe": "chaotic" }
 ]

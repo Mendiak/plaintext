@@ -32,9 +32,9 @@ const translations = {
       mobile: "Mobile — 1080 × 1920"
     },
     layouts: {
-      editorial: "Editorial — left-aligned",
-      ruled: "Ruled — centred grid",
-      offset: "Offset — asymmetric"
+      editorial: "Editorial",
+      ruled: "Ruled",
+      offset: "Offset"
     },
     vibes: {
       all: "All",
@@ -95,9 +95,9 @@ const translations = {
       mobile: "Móvil — 1080 × 1920"
     },
     layouts: {
-      editorial: "Editorial — alineado izquierda",
-      ruled: "Reglado — cuadrícula centrada",
-      offset: "Desplazado — asimétrico"
+      editorial: "Editorial",
+      ruled: "Reglado",
+      offset: "Desplazado"
     },
     vibes: {
       all: "Todo",
@@ -119,7 +119,7 @@ const translations = {
       gradient: {
         auto: "Auto — por Ambiente",
         vibrant: "Vibrante — colores",
-        calm: "Calmo — sutil",
+        calm: "Calma — sutil",
         chaotic: "Caótico — intenso",
         serious: "Serio — oscuro"
       }
@@ -743,8 +743,8 @@ async function init() {
       langEn.classList.remove('lang-btn--active');
     }
 
-    generate(true);
     updateUI();
+    generate(false);
 
   } catch (err) {
     console.error('Init failed:', err);
