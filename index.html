@@ -6,7 +6,7 @@
   <meta name="description" content="Transform words into art. Plaintext generates beautiful, minimal typographic wallpapers from curated quotes — pick your vibe, font, and layout, then download." />
   <meta name="keywords" content="typography, wallpaper generator, quote posters, minimalist design, desktop wallpaper, mobile wallpaper, typographic art" />
   <meta name="author" content="mendiak" />
-  <meta property="og:title" content="Plaintext — Typography Wallpapers" />
+  <meta property="og:title" content="Quote-driven typographic posters" />
   <meta property="og:description" content="Transform words into art. Generate beautiful, minimal typographic wallpapers from curated quotes." />
   <meta property="og:image" content="https://mendiak.github.io/plaintext/assets/og.png" />
   <meta property="og:image:width" content="1200" />
@@ -65,26 +65,41 @@
 
       <div class="control-group">
         <label class="label" for="resolution-select">Resolution</label>
-        <select id="resolution-select" class="select">
-          <option value="desktop">Desktop — 1920 × 1080</option>
-          <option value="mobile">Mobile — 1080 × 1920</option>
-        </select>
+        <div class="dropdown" id="resolution-dropdown">
+          <button class="dropdown__trigger" id="resolution-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="dropdown__value">Desktop — 1920 × 1080</span>
+          </button>
+          <div class="dropdown__menu" id="resolution-menu" role="listbox">
+            <div class="dropdown__option dropdown__option--selected" data-value="desktop" role="option" aria-selected="true">Desktop — 1920 × 1080</div>
+            <div class="dropdown__option" data-value="mobile" role="option" aria-selected="false">Mobile — 1080 × 1920</div>
+          </div>
+        </div>
       </div>
 
       <div class="control-group">
         <label class="label" for="font-select">Typeface</label>
-        <select id="font-select" class="select">
-          <!-- populated by JS -->
-        </select>
+        <div class="dropdown" id="font-dropdown">
+          <button class="dropdown__trigger" id="font-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="dropdown__value">—</span>
+          </button>
+          <div class="dropdown__menu" id="font-menu" role="listbox">
+            <!-- populated by JS -->
+          </div>
+        </div>
       </div>
 
       <div class="control-group">
         <label class="label" for="layout-select">Layout</label>
-        <select id="layout-select" class="select">
-          <option value="editorial">Editorial — left-aligned</option>
-          <option value="ruled">Ruled — centred grid</option>
-          <option value="offset">Offset — asymmetric</option>
-        </select>
+        <div class="dropdown" id="layout-dropdown">
+          <button class="dropdown__trigger" id="layout-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="dropdown__value">Editorial — left-aligned</span>
+          </button>
+          <div class="dropdown__menu" id="layout-menu" role="listbox">
+            <div class="dropdown__option dropdown__option--selected" data-value="editorial" role="option" aria-selected="true">Editorial — left-aligned</div>
+            <div class="dropdown__option" data-value="ruled" role="option" aria-selected="false">Ruled — centred grid</div>
+            <div class="dropdown__option" data-value="offset" role="option" aria-selected="false">Offset — asymmetric</div>
+          </div>
+        </div>
       </div>
 
       <div class="control-group">
@@ -94,37 +109,52 @@
           <button id="tab-gradient" class="tab" type="button">Gradient</button>
         </div>
         <div id="solid-controls" class="tab-content tab-content--active">
-          <select id="solid-select" class="select">
-            <option value="white">Pure White</option>
-            <option value="cream">Antique Cream</option>
-            <option value="ivory">Warm Ivory</option>
-            <option value="sand">Soft Sand</option>
-            <option value="clay">Grey Clay</option>
-            <option value="slate">Cool Slate</option>
-            <option value="charcoal">Deep Charcoal</option>
-            <option value="black">Pure Black</option>
-          </select>
+          <div class="dropdown" id="solid-dropdown">
+            <button class="dropdown__trigger" id="solid-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="dropdown__value">Pure White</span>
+            </button>
+            <div class="dropdown__menu" id="solid-menu" role="listbox">
+              <div class="dropdown__option dropdown__option--selected" data-value="white" role="option" aria-selected="true">Pure White</div>
+              <div class="dropdown__option" data-value="cream" role="option" aria-selected="false">Antique Cream</div>
+              <div class="dropdown__option" data-value="ivory" role="option" aria-selected="false">Warm Ivory</div>
+              <div class="dropdown__option" data-value="sand" role="option" aria-selected="false">Soft Sand</div>
+              <div class="dropdown__option" data-value="clay" role="option" aria-selected="false">Grey Clay</div>
+              <div class="dropdown__option" data-value="slate" role="option" aria-selected="false">Cool Slate</div>
+              <div class="dropdown__option" data-value="charcoal" role="option" aria-selected="false">Deep Charcoal</div>
+              <div class="dropdown__option" data-value="black" role="option" aria-selected="false">Pure Black</div>
+            </div>
+          </div>
         </div>
         <div id="gradient-controls" class="tab-content">
-          <select id="gradient-select" class="select">
-            <option value="auto">Auto — by Vibe</option>
-            <option value="vibrant">Vibrant — colors</option>
-            <option value="calm">Calm — subtle</option>
-            <option value="chaotic">Chaotic — intense</option>
-            <option value="serious">Serious — dark</option>
-          </select>
+          <div class="dropdown" id="gradient-dropdown">
+            <button class="dropdown__trigger" id="gradient-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="dropdown__value">Auto — by Vibe</span>
+            </button>
+            <div class="dropdown__menu" id="gradient-menu" role="listbox">
+              <div class="dropdown__option dropdown__option--selected" data-value="auto" role="option" aria-selected="true">Auto — by Vibe</div>
+              <div class="dropdown__option" data-value="vibrant" role="option" aria-selected="false">Vibrant — colors</div>
+              <div class="dropdown__option" data-value="calm" role="option" aria-selected="false">Calm — subtle</div>
+              <div class="dropdown__option" data-value="chaotic" role="option" aria-selected="false">Chaotic — intense</div>
+              <div class="dropdown__option" data-value="serious" role="option" aria-selected="false">Serious — dark</div>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="control-group">
         <label class="label" for="ink-select">Ink</label>
-        <select id="ink-select" class="select">
-          <option value="auto">Auto — Contrast</option>
-          <option value="dark">Charcoal Black</option>
-          <option value="deep">Pure Black</option>
-          <option value="light">Ghost White</option>
-          <option value="muted">Steel Grey</option>
-        </select>
+        <div class="dropdown" id="ink-dropdown">
+          <button class="dropdown__trigger" id="ink-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="dropdown__value">Auto — Contrast</span>
+          </button>
+          <div class="dropdown__menu" id="ink-menu" role="listbox">
+            <div class="dropdown__option dropdown__option--selected" data-value="auto" role="option" aria-selected="true">Auto — Contrast</div>
+            <div class="dropdown__option" data-value="dark" role="option" aria-selected="false">Charcoal Black</div>
+            <div class="dropdown__option" data-value="deep" role="option" aria-selected="false">Pure Black</div>
+            <div class="dropdown__option" data-value="light" role="option" aria-selected="false">Ghost White</div>
+            <div class="dropdown__option" data-value="muted" role="option" aria-selected="false">Steel Grey</div>
+          </div>
+        </div>
       </div>
 
       <!-- Custom quote -->

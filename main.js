@@ -184,30 +184,26 @@ function updateUI() {
   const uniqueVibes = new Set(allQuotes.map(q => q.vibe)).size;
   document.getElementById('sidebar-footer').textContent = t.footer(filteredLen, uniqueVibes, FONTS.length);
 
-  // Select options
-  const resolutionSel = document.getElementById('resolution-select');
-  resolutionSel.options[0].text = t.resolutions.desktop;
-  resolutionSel.options[1].text = t.resolutions.mobile;
+  // Update dropdown options text
+  const updateDropdownOptions = (menuId, texts) => {
+    const menu = document.getElementById(menuId);
+    const options = menu.querySelectorAll('.dropdown__option');
+    options.forEach((opt, index) => {
+      if (texts[index]) opt.textContent = texts[index];
+    });
+  };
 
-  const layoutSel = document.getElementById('layout-select');
-  layoutSel.options[0].text = t.layouts.editorial;
-  layoutSel.options[1].text = t.layouts.ruled;
-  layoutSel.options[2].text = t.layouts.offset;
-
-  const solidSel = document.getElementById('solid-select');
-  Object.keys(t.backgrounds.solid).forEach((key, index) => {
-    solidSel.options[index].text = t.backgrounds.solid[key];
-  });
-
-  const gradientSel = document.getElementById('gradient-select');
-  Object.keys(t.backgrounds.gradient).forEach((key, index) => {
-    gradientSel.options[index].text = t.backgrounds.gradient[key];
-  });
-
-  const inkSel = document.getElementById('ink-select');
-  Object.keys(t.inks).forEach((key, index) => {
-    inkSel.options[index].text = t.inks[key];
-  });
+  updateDropdownOptions('resolution-menu', [t.resolutions.desktop, t.resolutions.mobile]);
+  updateDropdownOptions('layout-menu', [t.layouts.editorial, t.layouts.ruled, t.layouts.offset]);
+  
+  const solidTexts = Object.keys(t.backgrounds.solid).map(k => t.backgrounds.solid[k]);
+  updateDropdownOptions('solid-menu', solidTexts);
+  
+  const gradientTexts = Object.keys(t.backgrounds.gradient).map(k => t.backgrounds.gradient[k]);
+  updateDropdownOptions('gradient-menu', gradientTexts);
+  
+  const inkTexts = Object.keys(t.inks).map(k => t.inks[k]);
+  updateDropdownOptions('ink-menu', inkTexts);
 }
 
 const fontLink = document.createElement('link');
@@ -287,6 +283,89 @@ function setVibeFilter(vibe) {
 }
 
 /* ──────────────────────────────────────────────────────
+   CUSTOM DROPDOWN COMPONENT
+────────────────────────────────────────────────────────── */
+function createDropdown(id, options, initialValue, onChange) {
+  const trigger = document.getElementById(`${id}-trigger`);
+  const menu = document.getElementById(`${id}-menu`);
+  const valueEl = trigger.querySelector('.dropdown__value');
+  let currentValue = initialValue;
+
+  // Populate options if menu is empty
+  if (menu.children.length === 0 && options) {
+    options.forEach(opt => {
+      const div = document.createElement('div');
+      div.className = 'dropdown__option';
+      div.dataset.value = opt.value;
+      div.textContent = opt.label;
+      div.setAttribute('role', 'option');
+      div.setAttribute('aria-selected', 'false');
+      menu.appendChild(div);
+    });
+  }
+
+  const updateDisplay = () => {
+    const selectedOption = menu.querySelector(`[data-value="${currentValue}"]`);
+    if (selectedOption) {
+      valueEl.textContent = selectedOption.textContent;
+      menu.querySelectorAll('.dropdown__option').forEach(opt => {
+        opt.classList.remove('dropdown__option--selected');
+        opt.setAttribute('aria-selected', 'false');
+      });
+      selectedOption.classList.add('dropdown__option--selected');
+      selectedOption.setAttribute('aria-selected', 'true');
+    }
+  };
+
+  const toggle = () => {
+    const isOpen = menu.classList.contains('dropdown__menu--open');
+    // Close all other dropdowns first
+    document.querySelectorAll('.dropdown__menu--open').forEach(m => {
+      if (m !== menu) {
+        m.classList.remove('dropdown__menu--open');
+        m.previousElementSibling.classList.remove('dropdown__trigger--open');
+        m.previousElementSibling.setAttribute('aria-expanded', 'false');
+      }
+    });
+    
+    menu.classList.toggle('dropdown__menu--open');
+    trigger.classList.toggle('dropdown__trigger--open');
+    trigger.setAttribute('aria-expanded', !isOpen);
+  };
+
+  const select = (value) => {
+    currentValue = value;
+    updateDisplay();
+    onChange(value);
+    // Close dropdown
+    menu.classList.remove('dropdown__menu--open');
+    trigger.classList.remove('dropdown__trigger--open');
+    trigger.setAttribute('aria-expanded', 'false');
+  };
+
+  // Event listeners
+  trigger.addEventListener('click', toggle);
+
+  menu.addEventListener('click', (e) => {
+    const option = e.target.closest('.dropdown__option');
+    if (option) {
+      select(option.dataset.value);
+    }
+  });
+
+  // Initialize display
+  updateDisplay();
+
+  return {
+    setValue: (value) => {
+      currentValue = value;
+      updateDisplay();
+    },
+    getValue: () => currentValue
+  };
+}
+
+/* ──────────────────────────────────────────────────────
    KEYBOARD SHORTCUTS PANEL
 ────────────────────────────────────────────────────────── */
 function toggleKbdPanel(open) {
@@ -326,14 +405,8 @@ async function init() {
     const generateBtn   = document.getElementById('btn-generate');
     const shuffleBtn    = document.getElementById('btn-shuffle');
     const downloadBtn   = document.getElementById('btn-download');
-    const resolutionSel = document.getElementById('resolution-select');
-    const fontSel       = document.getElementById('font-select');
-    const layoutSel     = document.getElementById('layout-select');
     const tabSolid      = document.getElementById('tab-solid');
     const tabGradient   = document.getElementById('tab-gradient');
-    const solidSel      = document.getElementById('solid-select');
-    const gradientSel   = document.getElementById('gradient-select');
-    const inkSel        = document.getElementById('ink-select');
     const langEn        = document.getElementById('lang-en');
     const langEs        = document.getElementById('lang-es');
     const vibeEl        = document.getElementById('vibe-indicator');
@@ -355,12 +428,39 @@ async function init() {
     zenHint.textContent = 'Press Z or Esc to exit';
     document.getElementById('app').appendChild(zenHint);
 
-    // Build font options
-    FONTS.forEach((f) => {
-      const opt = document.createElement('option');
-      opt.value = f.id;
-      opt.textContent = f.label;
-      fontSel.appendChild(opt);
+    // Initialize custom dropdowns
+    const resolutionDropdown = createDropdown('resolution', null, 'desktop', (value) => {
+      currentRes = RESOLUTIONS[value] ?? RESOLUTIONS.desktop;
+      draw();
+    });
+
+    const fontDropdown = createDropdown('font', FONTS.map(f => ({ value: f.id, label: f.label })), FONTS[0].id, (value) => {
+      currentFont = FONTS.find(f => f.id === value) ?? FONTS[0];
+      draw();
+    });
+
+    const layoutDropdown = createDropdown('layout', null, 'editorial', (value) => {
+      currentLayout = value;
+      const layoutIndicator = document.getElementById('layout-current');
+      if (layoutIndicator) layoutIndicator.textContent = currentLayout;
+      draw();
+    });
+
+    const solidDropdown = createDropdown('solid', null, 'white', (value) => {
+      currentBgValue = value;
+      resolveBackground();
+      draw();
+    });
+
+    const gradientDropdown = createDropdown('gradient', null, 'auto', (value) => {
+      currentBgValue = value;
+      resolveBackground();
+      draw();
+    });
+
+    const inkDropdown = createDropdown('ink', null, 'auto', (value) => {
+      currentInk = value;
+      draw();
     });
 
     const draw = () => {
@@ -425,31 +525,31 @@ async function init() {
 
       if (randomizeStyles) {
         currentFont = getRandomItem(FONTS);
-        fontSel.value = currentFont.id;
+        fontDropdown.setValue(currentFont.id);
 
         currentLayout = getRandomItem(LAYOUTS);
-        layoutSel.value = currentLayout;
+        layoutDropdown.setValue(currentLayout);
 
         currentBgType = getRandomItem(['solid', 'gradient']);
         if (currentBgType === 'solid') {
           tabSolid.click();
           const solidOptions = ['white', 'cream', 'ivory', 'sand', 'clay', 'slate', 'charcoal', 'black'];
           currentBgValue = getRandomItem(solidOptions);
-          solidSel.value = currentBgValue;
+          solidDropdown.setValue(currentBgValue);
         } else {
           tabGradient.click();
           const gradientOptions = ['auto', 'vibrant', 'calm', 'chaotic', 'serious'];
           currentBgValue = getRandomItem(gradientOptions);
-          gradientSel.value = currentBgValue;
+          gradientDropdown.setValue(currentBgValue);
         }
 
         currentInk = 'auto';
-        inkSel.value = 'auto';
+        inkDropdown.setValue('auto');
       } else {
         currentBgType = tabSolid.classList.contains('tab--active') ? 'solid' : 'gradient';
-        currentBgValue = currentBgType === 'solid' ? solidSel.value : gradientSel.value;
-        currentLayout = layoutSel.value;
-        currentFont = FONTS.find(f => f.id === fontSel.value) ?? FONTS[0];
+        currentBgValue = currentBgType === 'solid' ? solidDropdown.getValue() : gradientDropdown.getValue();
+        currentLayout = layoutDropdown.getValue();
+        currentFont = FONTS.find(f => f.id === fontDropdown.getValue()) ?? FONTS[0];
       }
 
       resolveBackground();
@@ -483,23 +583,6 @@ async function init() {
       a.click();
     });
 
-    resolutionSel.addEventListener('change', () => {
-      currentRes = RESOLUTIONS[resolutionSel.value] ?? RESOLUTIONS.desktop;
-      draw();
-    });
-
-    fontSel.addEventListener('change', () => {
-      currentFont = FONTS.find(f => f.id === fontSel.value) ?? FONTS[0];
-      draw();
-    });
-
-    layoutSel.addEventListener('change', () => {
-      currentLayout = layoutSel.value;
-      const layoutIndicator = document.getElementById('layout-current');
-      if (layoutIndicator) layoutIndicator.textContent = currentLayout;
-      draw();
-    });
-
     // Tab switching
     tabSolid.addEventListener('click', () => {
       tabSolid.classList.add('tab--active');
@@ -507,7 +590,7 @@ async function init() {
       document.getElementById('solid-controls').classList.add('tab-content--active');
       document.getElementById('gradient-controls').classList.remove('tab-content--active');
       currentBgType  = 'solid';
-      currentBgValue = solidSel.value;
+      currentBgValue = solidDropdown.getValue();
       resolveBackground();
       draw();
     });
@@ -518,25 +601,8 @@ async function init() {
       document.getElementById('gradient-controls').classList.add('tab-content--active');
       document.getElementById('solid-controls').classList.remove('tab-content--active');
       currentBgType  = 'gradient';
-      currentBgValue = gradientSel.value;
+      currentBgValue = gradientDropdown.getValue();
       resolveBackground();
-      draw();
-    });
-
-    solidSel.addEventListener('change', () => {
-      currentBgValue = solidSel.value;
-      resolveBackground();
-      draw();
-    });
-
-    gradientSel.addEventListener('change', () => {
-      currentBgValue = gradientSel.value;
-      resolveBackground();
-      draw();
-    });
-
-    inkSel.addEventListener('change', () => {
-      currentInk = inkSel.value;
       draw();
     });
 
@@ -631,16 +697,13 @@ async function init() {
           downloadBtn.click();
           break;
         case '1':
-          layoutSel.value = 'editorial';
-          layoutSel.dispatchEvent(new Event('change'));
+          layoutDropdown.setValue('editorial');
           break;
         case '2':
-          layoutSel.value = 'ruled';
-          layoutSel.dispatchEvent(new Event('change'));
+          layoutDropdown.setValue('ruled');
           break;
         case '3':
-          layoutSel.value = 'offset';
-          layoutSel.dispatchEvent(new Event('change'));
+          layoutDropdown.setValue('offset');
           break;
         case 'z':
         case 'Z':
@@ -656,6 +719,17 @@ async function init() {
             setZen(false);
           }
           break;
+      }
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown__menu--open').forEach(menu => {
+          menu.classList.remove('dropdown__menu--open');
+          menu.previousElementSibling.classList.remove('dropdown__trigger--open');
+          menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+        });
       }
     });
 
