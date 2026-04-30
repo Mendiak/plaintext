@@ -70,7 +70,8 @@ const translations = {
       deep: "Pure Black",
       light: "Ghost White",
       muted: "Steel Grey"
-    }
+    },
+    developedBy: "by"
   },
   es: {
     resolution: "Resolución",
@@ -136,7 +137,8 @@ const translations = {
       deep: "Negro Puro",
       light: "Blanco Fantasma",
       muted: "Gris Acero"
-    }
+    },
+    developedBy: "por"
   }
 };
 
@@ -182,6 +184,10 @@ function updateUI() {
   if (!currentQuote) {
     document.getElementById('quote-preview').textContent = t.pressGenerate;
   }
+
+  // Credits
+  const creditTextEl = document.getElementById('credit-text');
+  if (creditTextEl) creditTextEl.textContent = t.developedBy;
 
   // Footer
   const filteredLen = currentVibeFilter === 'all'

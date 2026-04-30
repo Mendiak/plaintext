@@ -686,7 +686,29 @@ kbd {
   color: var(--text-faint);
   letter-spacing: 0.04em;
   margin-top: auto;
+}
+
+.sidebar__credits {
+  font-size: 0.65rem;
+  color: var(--text-sub);
+  letter-spacing: 0.02em;
   padding-bottom: 1.5rem; /* space for ? button */
+}
+
+.sidebar__credits a {
+  color: var(--text-sub);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.sidebar__credits a:hover {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+
+.sidebar__credits .header__dot {
+  margin: 0 0.15rem;
 }
 
 /* ── Btn group ─────────────────────────────────────── */
