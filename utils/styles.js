@@ -63,8 +63,8 @@ export const FONTS = [
     family: "'Outfit', Helvetica, sans-serif",
     weight: '200',
     style: 'sans-serif, clean',
-    leading: 1.5,
-    tracking: 0.08
+    leading: 1.2,
+    tracking: 0.02
   },
   {
     id: 'dm-mono',
@@ -72,8 +72,8 @@ export const FONTS = [
     family: "'DM Mono', 'Courier New', monospace",
     weight: '300',
     style: 'monospace, technical',
-    leading: 1.6,
-    tracking: 0.05
+    leading: 1.4,
+    tracking: 0.02
   },
   {
     id: 'fraunces',

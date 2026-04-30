@@ -45,19 +45,27 @@ function wrapText(ctx, text, maxWidth) {
 }
 
 /**
- * Finds the optimal font size so quote fits within maxLines lines.
+ * Finds the optimal font size so quote fits within maxLines lines AND maxHeight.
  */
-function fitFontSize(ctx, text, maxWidth, maxLines, startSize, minSize, fontString) {
+function fitFontSize(ctx, text, maxWidth, maxLines, maxHeight, startSize, minSize, fontString, leading = 1.25) {
   let size = startSize;
   const buildFont = (s) => fontString.replace('__SIZE__', `${s}px`);
-  ctx.font = buildFont(size);
-  let lines = wrapText(ctx, text, maxWidth);
-  while (lines.length > maxLines && size > minSize) {
+  
+  const checkConstraints = (s) => {
+    ctx.font = buildFont(s);
+    const lines = wrapText(ctx, text, maxWidth);
+    const height = lines.length * s * leading;
+    return { lines, height, ok: lines.length <= maxLines && height <= maxHeight };
+  };
+
+  let result = checkConstraints(size);
+  
+  while (!result.ok && size > minSize) {
     size -= 2;
-    ctx.font = buildFont(size);
-    lines = wrapText(ctx, text, maxWidth);
+    result = checkConstraints(size);
   }
-  return { lines, size };
+  
+  return { lines: result.lines, size };
 }
 
 /**
@@ -133,8 +141,12 @@ function layoutEditorial(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 
   // Increase font size multiplier for portrait mode
   const baseSize = isPortrait ? Math.round(w * 0.08) : Math.round(w * 0.055);
   const fontStr = `${font.weight} __SIZE__ ${font.family}`;
-  const { lines, size } = fitFontSize(ctx, text, maxW, isPortrait ? 8 : 5, baseSize, 22, fontStr);
-  const lh = size * (font.leading || 1.25);
+  const leading = font.leading || 1.25;
+  const maxLines = isPortrait ? 8 : 5;
+  const maxBlockH = h * (isPortrait ? 0.65 : 0.55);
+
+  const { lines, size } = fitFontSize(ctx, text, maxW, maxLines, maxBlockH, baseSize, 22, fontStr, leading);
+  const lh = size * leading;
 
   // ── vertical center block
   const authorH = Math.round(w * (isPortrait ? 0.025 : 0.018));
@@ -191,8 +203,12 @@ function layoutRuled(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en'
 
   const baseSize = isPortrait ? Math.round(w * 0.05) : Math.round(w * 0.033);
   const fontStr  = `${font.weight} __SIZE__ ${font.family}`;
-  const { lines, size } = fitFontSize(ctx, text, maxW, isPortrait ? 10 : 6, baseSize, 20, fontStr);
-  const lh = size * (font.leading || 1.4);
+  const leading  = font.leading || 1.4;
+  const maxLines = isPortrait ? 10 : 6;
+  const maxBlockH = h * (isPortrait ? 0.7 : 0.6);
+
+  const { lines, size } = fitFontSize(ctx, text, maxW, maxLines, maxBlockH, baseSize, 20, fontStr, leading);
+  const lh = size * leading;
 
   // ── center the block
   const authorSize = Math.round(w * (isPortrait ? 0.022 : 0.015));
@@ -271,8 +287,12 @@ function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en
   // ── quote on the right column
   const baseSize = isPortrait ? Math.round(w * 0.06) : Math.round(w * 0.038);
   const fontStr  = `${font.weight} __SIZE__ ${font.family}`;
-  const { lines, size } = fitFontSize(ctx, text, maxRightW, isPortrait ? 12 : 7, baseSize, 18, fontStr);
-  const lh = size * (font.leading || 1.35);
+  const leading  = font.leading || 1.35;
+  const maxLines = isPortrait ? 12 : 7;
+  const maxBlockH = h * (isPortrait ? 0.75 : 0.65);
+
+  const { lines, size } = fitFontSize(ctx, text, maxRightW, maxLines, maxBlockH, baseSize, 18, fontStr, leading);
+  const lh = size * leading;
 
   const authorSize = Math.round(w * (isPortrait ? 0.02 : 0.014));
   const blockH = lines.length * lh + authorSize * 3.5;
