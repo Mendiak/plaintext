@@ -707,6 +707,18 @@ kbd {
   border-bottom-color: var(--text-primary);
 }
 
+.sidebar__bmc {
+  margin-top: 0.8rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  transform: scale(0.8);
+  transform-origin: left center;
+}
+
+.sidebar__bmc:hover {
+  opacity: 1;
+}
+
 .sidebar__credits .header__dot {
   margin: 0 0.15rem;
 }
