@@ -92,6 +92,39 @@ function clearInkBleed(ctx) {
    BACKGROUND & TEXTURE
 ──────────────────────────────────────────────────────────────── */
 
+function drawTypographicBg(ctx, w, h, colors, text, fontFamily, vibe) {
+  ctx.save();
+
+  const letters = [...text].filter(c => /\p{L}/u.test(c)).map(c => c.toUpperCase());
+  if (!letters.length) { ctx.restore(); return; }
+
+  const style = vibeStyles[vibe] ?? vibeStyles.calm;
+  const fillColor = style.accentColor;
+
+  for (let i = 0; i < 2; i++) {
+    ctx.save();
+
+    const char = letters[i % letters.length];
+    const x = w * (0.15 + Math.random() * 0.7);
+    const y = h * (0.15 + Math.random() * 0.7);
+    const size = w * (0.65 + Math.random() * 0.30);
+    const rotation = (Math.random() - 0.5) * Math.PI * 0.6;
+
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.font = `bold ${size}px ${fontFamily}, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = fillColor;
+    ctx.globalAlpha = 0.03 + Math.random() * 0.04;
+    ctx.fillText(char, 0, 0);
+
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
 function drawGrain(ctx, w, h) {
   ctx.save();
   ctx.fillStyle = '#000000';
@@ -398,8 +431,9 @@ function drawWatermark(ctx, w, h, inkColor) {
  * @param {string} layout - 'editorial' | 'ruled' | 'offset'
  * @param {string|null} inkColor - typography color override
  * @param {string} lang - 'en' | 'es'
+ * @param {string} bgStyle - 'classic' | 'typographic'
  */
-export function renderWallpaper(quote, resolution, gradient, font, layout, inkColor = null, lang = 'en') {
+export function renderWallpaper(quote, resolution, gradient, font, layout, inkColor = null, lang = 'en', bgStyle = 'classic') {
   const { width: w, height: h } = resolution;
   const canvas = document.getElementById('canvas');
   const ctx    = canvas.getContext('2d');
@@ -409,15 +443,21 @@ export function renderWallpaper(quote, resolution, gradient, font, layout, inkCo
 
   // 1. Base color/gradient
   drawBackground(ctx, w, h, gradient);
-  
-  // 2. Typographic composition
+
+  // 2. Pattern overlay (background texture)
+  if (bgStyle === 'typographic') {
+    const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
+    drawTypographicBg(ctx, w, h, gradient, text, font.family, quote.vibe);
+  }
+
+  // 3. Typographic composition
   if (layout === 'ruled')    layoutRuled(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
   else if (layout === 'offset') layoutOffset(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
   else                          layoutEditorial(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
 
-  // 3. Technical folio (metadata)
+  // 4. Technical folio (metadata)
   drawFolio(ctx, w, h, font, quote.vibe, resolution, inkColor);
 
-  // 4. Watermark (branding)
+  // 5. Watermark (branding)
   drawWatermark(ctx, w, h, inkColor);
 }

@@ -14,6 +14,7 @@ const translations = {
     ink: "Ink",
     solid: "Solid",
     gradient: "Gradient",
+    pattern: "Pattern",
     nextQuote: "Next Quote",
     shuffle: "Shuffle",
     download: "Download",
@@ -62,6 +63,9 @@ const translations = {
         calm: "Calm — subtle",
         chaotic: "Chaotic — intense",
         serious: "Serious — dark"
+      },
+      pattern: {
+        typographic: "Typographic"
       }
     },
     inks: {
@@ -81,6 +85,7 @@ const translations = {
     ink: "Tinta",
     solid: "Sólido",
     gradient: "Gradiente",
+    pattern: "Patrón",
     nextQuote: "Siguiente Cita",
     shuffle: "Aleatorio",
     download: "Descargar",
@@ -129,6 +134,9 @@ const translations = {
         calm: "Calma — sutil",
         chaotic: "Caótico — intenso",
         serious: "Serio — oscuro"
+      },
+      pattern: {
+        typographic: "Tipográfico"
       }
     },
     inks: {
@@ -164,6 +172,7 @@ function updateUI() {
   // Tabs
   document.getElementById('tab-solid').textContent = t.solid;
   document.getElementById('tab-gradient').textContent = t.gradient;
+  document.getElementById('tab-pattern').textContent = t.pattern;
 
   // Buttons
   document.getElementById('btn-generate').textContent = t.nextQuote;
@@ -220,6 +229,9 @@ function updateUI() {
   
   const gradientTexts = Object.keys(t.backgrounds.gradient).map(k => t.backgrounds.gradient[k]);
   updateDropdownOptions('gradient-menu', gradientTexts);
+  
+  const patternTexts = Object.keys(t.backgrounds.pattern).map(k => t.backgrounds.pattern[k]);
+  updateDropdownOptions('pattern-menu', patternTexts);
   
   const inkTexts = Object.keys(t.inks).map(k => t.inks[k]);
   updateDropdownOptions('ink-menu', inkTexts);
@@ -429,6 +441,7 @@ async function init() {
     const downloadBtn   = document.getElementById('btn-download');
     const tabSolid      = document.getElementById('tab-solid');
     const tabGradient   = document.getElementById('tab-gradient');
+    const tabPattern    = document.getElementById('tab-pattern');
     const langEn        = document.getElementById('lang-en');
     const langEs        = document.getElementById('lang-es');
     const vibeEl        = document.getElementById('vibe-indicator');
@@ -485,6 +498,12 @@ async function init() {
       draw();
     });
 
+    const patternDropdown = createDropdown('pattern', null, 'typographic', (value) => {
+      currentBgValue = value;
+      resolveBackground();
+      draw();
+    });
+
     const draw = () => {
       if (!currentQuote && !customQuoteEl.value.trim()) return;
       let inkColor = currentInk === 'auto' ? null : INK_COLORS[currentInk];
@@ -492,7 +511,8 @@ async function init() {
         const isDarkBg = checkIsDark(currentGradient[0]);
         inkColor = isDarkBg ? INK_COLORS.light : INK_COLORS.dark;
       }
-      renderWallpaper(currentQuote, currentRes, currentGradient, currentFont, currentLayout, inkColor, currentLang);
+      const bgStyle = currentBgType === 'pattern' ? currentBgValue : 'classic';
+      renderWallpaper(currentQuote, currentRes, currentGradient, currentFont, currentLayout, inkColor, currentLang, bgStyle);
 
       const wrapW = wrapper.clientWidth;
       const wrapH = wrapper.clientHeight;
@@ -504,6 +524,8 @@ async function init() {
     const resolveBackground = () => {
       if (currentBgType === 'solid') {
         currentGradient = PAPER_COLORS[currentBgValue] || PAPER_COLORS.white;
+      } else if (currentBgType === 'pattern') {
+        currentGradient = getGradient(currentQuote?.vibe || 'calm', 'subtle', 'auto');
       } else {
         let intensity = 'subtle';
         let paper = 'auto';
@@ -552,12 +574,16 @@ async function init() {
         currentLayout = getRandomItem(LAYOUTS);
         layoutDropdown.setValue(currentLayout);
 
-        currentBgType = getRandomItem(['solid', 'gradient']);
+        currentBgType = getRandomItem(['solid', 'gradient', 'pattern']);
         if (currentBgType === 'solid') {
           tabSolid.click();
           const solidOptions = ['white', 'cream', 'ivory', 'sand', 'clay', 'slate', 'charcoal', 'black'];
           currentBgValue = getRandomItem(solidOptions);
           solidDropdown.setValue(currentBgValue);
+        } else if (currentBgType === 'pattern') {
+          tabPattern.click();
+          currentBgValue = 'typographic';
+          patternDropdown.setValue('typographic');
         } else {
           tabGradient.click();
           const gradientOptions = ['auto', 'vibrant', 'calm', 'chaotic', 'serious'];
@@ -568,8 +594,8 @@ async function init() {
         currentInk = 'auto';
         inkDropdown.setValue('auto');
       } else {
-        currentBgType = tabSolid.classList.contains('tab--active') ? 'solid' : 'gradient';
-        currentBgValue = currentBgType === 'solid' ? solidDropdown.getValue() : gradientDropdown.getValue();
+        currentBgType = tabSolid.classList.contains('tab--active') ? 'solid' : tabGradient.classList.contains('tab--active') ? 'gradient' : 'pattern';
+        currentBgValue = currentBgType === 'solid' ? solidDropdown.getValue() : currentBgType === 'gradient' ? gradientDropdown.getValue() : patternDropdown.getValue();
         currentLayout = layoutDropdown.getValue();
         currentFont = FONTS.find(f => f.id === fontDropdown.getValue()) ?? FONTS[0];
       }
@@ -609,8 +635,10 @@ async function init() {
     tabSolid.addEventListener('click', () => {
       tabSolid.classList.add('tab--active');
       tabGradient.classList.remove('tab--active');
+      tabPattern.classList.remove('tab--active');
       document.getElementById('solid-controls').classList.add('tab-content--active');
       document.getElementById('gradient-controls').classList.remove('tab-content--active');
+      document.getElementById('pattern-controls').classList.remove('tab-content--active');
       currentBgType  = 'solid';
       currentBgValue = solidDropdown.getValue();
       resolveBackground();
@@ -620,10 +648,25 @@ async function init() {
     tabGradient.addEventListener('click', () => {
       tabGradient.classList.add('tab--active');
       tabSolid.classList.remove('tab--active');
+      tabPattern.classList.remove('tab--active');
       document.getElementById('gradient-controls').classList.add('tab-content--active');
       document.getElementById('solid-controls').classList.remove('tab-content--active');
+      document.getElementById('pattern-controls').classList.remove('tab-content--active');
       currentBgType  = 'gradient';
       currentBgValue = gradientDropdown.getValue();
+      resolveBackground();
+      draw();
+    });
+
+    tabPattern.addEventListener('click', () => {
+      tabPattern.classList.add('tab--active');
+      tabSolid.classList.remove('tab--active');
+      tabGradient.classList.remove('tab--active');
+      document.getElementById('pattern-controls').classList.add('tab-content--active');
+      document.getElementById('solid-controls').classList.remove('tab-content--active');
+      document.getElementById('gradient-controls').classList.remove('tab-content--active');
+      currentBgType  = 'pattern';
+      currentBgValue = patternDropdown.getValue();
       resolveBackground();
       draw();
     });
