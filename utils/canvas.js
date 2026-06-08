@@ -139,10 +139,13 @@ function drawGrain(ctx, w, h) {
 }
 
 function drawBackground(ctx, w, h, colors) {
-  // For portrait (mobile), use a vertical gradient. For landscape, use a diagonal one.
-  const isPortrait = h > w;
-  const grad = isPortrait 
+  const aspect = w / h;
+  const isPortrait = aspect < 0.9;
+  const isSquare = aspect >= 0.9 && aspect <= 1.1;
+  const grad = isPortrait
     ? ctx.createLinearGradient(0, 0, 0, h)
+    : isSquare
+    ? ctx.createLinearGradient(0, 0, w, h)
     : ctx.createLinearGradient(0, 0, w * 0.6, h);
     
   grad.addColorStop(0, colors[0]);
@@ -163,26 +166,27 @@ function drawBackground(ctx, w, h, colors) {
 function layoutEditorial(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en') {
   const style = vibeStyles[vibe] ?? vibeStyles.calm;
   const textColor = inkColor || style.textColor;
-  const isPortrait = h > w;
-  const padX = w * (isPortrait ? 0.1 : 0.12);
-  const maxW = w * (isPortrait ? 0.8 : 0.65);
+  const aspect = w / h;
+  const usePortrait = aspect < 0.9;
+  const useSquare = aspect >= 0.9 && aspect <= 1.1;
+  const padX = w * (usePortrait ? 0.1 : 0.1);
+  const maxW = w * (usePortrait ? 0.8 : useSquare ? 0.75 : 0.65);
   const startX = padX;
 
   const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
 
   // ── font size & metrics
-  // Increase font size multiplier for portrait mode
-  const baseSize = isPortrait ? Math.round(w * 0.08) : Math.round(w * 0.055);
+  const baseSize = usePortrait ? Math.round(w * 0.08) : useSquare ? Math.round(w * 0.07) : Math.round(w * 0.055);
   const fontStr = `${font.weight} __SIZE__ ${font.family}`;
   const leading = font.leading || 1.25;
-  const maxLines = isPortrait ? 8 : 5;
-  const maxBlockH = h * (isPortrait ? 0.65 : 0.55);
+  const maxLines = usePortrait ? 8 : useSquare ? 6 : 5;
+  const maxBlockH = h * (usePortrait ? 0.65 : useSquare ? 0.6 : 0.55);
 
   const { lines, size } = fitFontSize(ctx, text, maxW, maxLines, maxBlockH, baseSize, 22, fontStr, leading);
   const lh = size * leading;
 
   // ── vertical center block
-  const authorH = Math.round(w * (isPortrait ? 0.025 : 0.018));
+  const authorH = Math.round(w * (usePortrait ? 0.025 : useSquare ? 0.022 : 0.018));
   const blockH = lines.length * lh + authorH * 3.5;
   const startY = (h - blockH) / 2;
 
@@ -228,23 +232,25 @@ function layoutEditorial(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 
 function layoutRuled(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en') {
   const style = vibeStyles[vibe] ?? vibeStyles.calm;
   const textColor = inkColor || style.textColor;
-  const isPortrait = h > w;
+  const aspect = w / h;
+  const usePortrait = aspect < 0.9;
+  const useSquare = aspect >= 0.9 && aspect <= 1.1;
   const padX  = w * 0.1;
   const maxW  = w - padX * 2;
 
   const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
 
-  const baseSize = isPortrait ? Math.round(w * 0.05) : Math.round(w * 0.033);
+  const baseSize = usePortrait ? Math.round(w * 0.05) : useSquare ? Math.round(w * 0.042) : Math.round(w * 0.033);
   const fontStr  = `${font.weight} __SIZE__ ${font.family}`;
   const leading  = font.leading || 1.4;
-  const maxLines = isPortrait ? 10 : 6;
-  const maxBlockH = h * (isPortrait ? 0.7 : 0.6);
+  const maxLines = usePortrait ? 10 : useSquare ? 8 : 6;
+  const maxBlockH = h * (usePortrait ? 0.7 : useSquare ? 0.65 : 0.6);
 
   const { lines, size } = fitFontSize(ctx, text, maxW, maxLines, maxBlockH, baseSize, 20, fontStr, leading);
   const lh = size * leading;
 
   // ── center the block
-  const authorSize = Math.round(w * (isPortrait ? 0.022 : 0.015));
+  const authorSize = Math.round(w * (usePortrait ? 0.022 : useSquare ? 0.018 : 0.015));
   const blockH  = lines.length * lh + authorSize * 3;
   const startY  = (h - blockH) / 2;
 
@@ -295,12 +301,14 @@ function layoutRuled(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en'
 function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en') {
   const style = vibeStyles[vibe] ?? vibeStyles.calm;
   const textColor = inkColor || style.textColor;
-  const isPortrait = h > w;
+  const aspect = w / h;
+  const usePortrait = aspect < 0.9;
+  const useSquare = aspect >= 0.9 && aspect <= 1.1;
 
   // Grid split: 28% | 2% gutter | 70%
   // On mobile portrait, we reduce the offset effect to give more room to text
-  const colLeft  = w * (isPortrait ? 0.15 : 0.28);
-  const colRight = w * (isPortrait ? 0.20 : 0.32);
+  const colLeft  = w * (usePortrait ? 0.15 : useSquare ? 0.22 : 0.28);
+  const colRight = w * (usePortrait ? 0.20 : useSquare ? 0.26 : 0.32);
   const padY     = h * 0.15;
   const maxRightW = w - colRight - w * 0.08;
 
@@ -318,16 +326,16 @@ function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en
 
 
   // ── quote on the right column
-  const baseSize = isPortrait ? Math.round(w * 0.06) : Math.round(w * 0.038);
+  const baseSize = usePortrait ? Math.round(w * 0.06) : useSquare ? Math.round(w * 0.05) : Math.round(w * 0.038);
   const fontStr  = `${font.weight} __SIZE__ ${font.family}`;
   const leading  = font.leading || 1.35;
-  const maxLines = isPortrait ? 12 : 7;
-  const maxBlockH = h * (isPortrait ? 0.75 : 0.65);
+  const maxLines = usePortrait ? 12 : useSquare ? 9 : 7;
+  const maxBlockH = h * (usePortrait ? 0.75 : useSquare ? 0.7 : 0.65);
 
   const { lines, size } = fitFontSize(ctx, text, maxRightW, maxLines, maxBlockH, baseSize, 18, fontStr, leading);
   const lh = size * leading;
 
-  const authorSize = Math.round(w * (isPortrait ? 0.02 : 0.014));
+  const authorSize = Math.round(w * (usePortrait ? 0.02 : useSquare ? 0.017 : 0.014));
   const blockH = lines.length * lh + authorSize * 3.5;
   const startY = (h - blockH) / 2;
 
@@ -347,7 +355,7 @@ function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en
 
   // ── author
   ctx.save();
-  const lblSize = Math.round(w * (isPortrait ? 0.016 : 0.011));
+  const lblSize = Math.round(w * (usePortrait ? 0.016 : 0.011));
   ctx.font = `400 ${lblSize}px 'Space Grotesk', sans-serif`;
   ctx.fillStyle = textColor;
   ctx.globalAlpha = 0.75;
@@ -373,7 +381,7 @@ function drawFolio(ctx, w, h, font, vibe, res, inkColor) {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
   
-  const label = `TYPE: ${font.label.toUpperCase()} / VIBE: ${vibe.toUpperCase()} / RES: ${res.width}×${res.height} / MENDIAK.GITHUB.IO/PLAINTEXT v1.1`;
+  const label = `TYPE: ${font.label.toUpperCase()} / VIBE: ${vibe.toUpperCase()} / RES: ${res.width}×${res.height} / MENDIAK.GITHUB.IO/PLAINTEXT v1.2`;
   ctx.fillText(label, pad, h - pad);
   ctx.restore();
 }
@@ -382,40 +390,25 @@ function drawFolio(ctx, w, h, font, vibe, res, inkColor) {
    WATERMARK
 ──────────────────────────────────────────────────────────────── */
 
-const WATERMARK_PATHS = [
-  "M33.543 22.531h-5.464v8.543h5.464c1.384 0 2.46-.348 3.228-1.043s1.151-1.797 1.151-3.307s-.384-2.586-1.151-3.229s-1.844-.964-3.228-.964",
-  "M31.999 2c-16.568 0-30 13.432-30 30s13.432 30 30 30C48.568 62 62 48.568 62 32S48.568 2 31.999 2m9.398 31.949c-1.699 1.418-4.125 2.125-7.277 2.125h-6.041v10.434h-6.023V17.492h12.458c2.872 0 5.162.748 6.87 2.244c1.707 1.496 2.562 3.813 2.562 6.949c-.001 3.424-.85 5.846-2.549 7.264"
-];
-
-// Initialize Path2D objects for direct vector rendering
-const watermarkPaths = WATERMARK_PATHS.map(d => new Path2D(d));
+const WATERMARK_PATH = new Path2D(
+  "M31.999 2c-16.568 0-30 13.432-30 30s13.432 30 30 30C48.568 62 62 48.568 62 32S48.568 2 31.999 2" +
+  "m9.398 31.949c-1.699 1.418-4.125 2.125-7.277 2.125h-6.041v10.434h-6.023V17.492h12.458" +
+  "c2.872 0 5.162.748 6.87 2.244c1.707 1.496 2.562 3.813 2.562 6.949c-.001 3.424-.85 5.846-2.549 7.264"
+);
 
 /**
- * Draws watermark in bottom-right corner using native Path2D for maximum sharpness.
- * URL text removed from here as it's now in the folio.
+ * Draws watermark in bottom-right corner.
  */
 function drawWatermark(ctx, w, h, inkColor) {
   const size = Math.max(w, h) * 0.024;
   const padding = size * 0.5;
 
-  // Draw logo at bottom-right
-  const x = w - size - padding;
-  const y = h - size - padding;
-
   ctx.save();
-  
-  // Transform context to target position and scale (original SVG is 64x64)
-  ctx.translate(x, y);
-  const scale = size / 64;
-  ctx.scale(scale, scale);
-  
-  // Apply ink color and subtle transparency
+  ctx.translate(w - size - padding, h - size - padding);
+  ctx.scale(size / 64, size / 64);
   ctx.fillStyle = inkColor || '#000000';
-  ctx.globalAlpha = 0.3;
-  
-  // Fill paths directly on the main canvas (vector rendering)
-  watermarkPaths.forEach(path => ctx.fill(path));
-  
+  ctx.globalAlpha = 0.4;
+  ctx.fill(WATERMARK_PATH, 'evenodd');
   ctx.restore();
 }
 

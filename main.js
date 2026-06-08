@@ -25,7 +25,7 @@ const translations = {
     customQuotePlaceholder: "Type your own quote…",
     customAuthorPlaceholder: "Author (optional)",
     pressGenerate: "Press Generate to create a wallpaper.",
-    footer: (n, vibes, fonts) => `${n} quotes · ${vibes} vibes · ${fonts} typefaces`,
+    footer: (n, vibes, fonts, patterns) => `${n} quotes · ${vibes} vibes · ${fonts} typefaces · ${patterns} patterns`,
     copied: "Copied",
     shortcuts: "Shortcuts",
     resolutions: {
@@ -33,7 +33,9 @@ const translations = {
       desktop_1440p: "2K / 1440p — 2560 × 1440",
       desktop_4k: "4K / UHD — 3840 × 2160",
       desktop_ultrawide: "Ultrawide — 3440 × 1440",
-      mobile: "Mobile — 1080 × 1920"
+      mobile: "Mobile — 1080 × 1920",
+      instagram: "Instagram — 1080 × 1080",
+      og: "OG / Twitter — 1200 × 630"
     },
     layouts: {
       editorial: "Editorial",
@@ -96,7 +98,7 @@ const translations = {
     customQuotePlaceholder: "Escribe tu propia cita…",
     customAuthorPlaceholder: "Autor (opcional)",
     pressGenerate: "Presiona Generar para crear un wallpaper.",
-    footer: (n, vibes, fonts) => `${n} citas · ${vibes} ambientes · ${fonts} tipografías`,
+    footer: (n, vibes, fonts, patterns) => `${n} citas · ${vibes} ambientes · ${fonts} tipografías · ${patterns} patrones`,
     copied: "Copiado",
     shortcuts: "Atajos",
     resolutions: {
@@ -104,7 +106,9 @@ const translations = {
       desktop_1440p: "2K / 1440p — 2560 × 1440",
       desktop_4k: "4K / UHD — 3840 × 2160",
       desktop_ultrawide: "Ultrawide — 3440 × 1440",
-      mobile: "Móvil — 1080 × 1920"
+      mobile: "Móvil — 1080 × 1920",
+      instagram: "Instagram — 1080 × 1080",
+      og: "OG / Twitter — 1200 × 630"
     },
     layouts: {
       editorial: "Editorial",
@@ -203,7 +207,8 @@ function updateUI() {
     ? allQuotes.length
     : allQuotes.filter(q => q.vibe === currentVibeFilter).length;
   const uniqueVibes = new Set(allQuotes.map(q => q.vibe)).size;
-  document.getElementById('sidebar-footer').textContent = t.footer(filteredLen, uniqueVibes, FONTS.length);
+  const patternCount = Object.keys(t.backgrounds.pattern).length;
+  document.getElementById('sidebar-footer').textContent = t.footer(filteredLen, uniqueVibes, FONTS.length, patternCount);
 
   // Update dropdown options text
   const updateDropdownOptions = (menuId, texts) => {
@@ -219,7 +224,9 @@ function updateUI() {
     t.resolutions.desktop_1440p,
     t.resolutions.desktop_4k,
     t.resolutions.desktop_ultrawide,
-    t.resolutions.mobile
+    t.resolutions.mobile,
+    t.resolutions.instagram,
+    t.resolutions.og
   ];
   updateDropdownOptions('resolution-menu', resTexts);
   updateDropdownOptions('layout-menu', [t.layouts.editorial, t.layouts.ruled, t.layouts.offset]);
@@ -250,7 +257,9 @@ const RESOLUTIONS = {
   desktop_1440p:     { width: 2560, height: 1440 },
   desktop_4k:        { width: 3840, height: 2160 },
   desktop_ultrawide: { width: 3440, height: 1440 },
-  mobile:            { width: 1080, height: 1920 }
+  mobile:            { width: 1080, height: 1920 },
+  instagram:         { width: 1080, height: 1080 },
+  og:                { width: 1200, height: 630 }
 };
 
 let allQuotes       = [];
@@ -313,7 +322,8 @@ function setVibeFilter(vibe) {
   // Update footer count
   const t = translations[currentLang];
   const uniqueVibes = new Set(allQuotes.map(q => q.vibe)).size;
-  document.getElementById('sidebar-footer').textContent = t.footer(quotes.length, uniqueVibes, FONTS.length);
+  const patternCount = Object.keys(t.backgrounds.pattern).length;
+  document.getElementById('sidebar-footer').textContent = t.footer(quotes.length, uniqueVibes, FONTS.length, patternCount);
 }
 
 /* ──────────────────────────────────────────────────────
