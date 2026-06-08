@@ -371,18 +371,24 @@ function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en
  * Includes URL as part of the technical information.
  */
 function drawFolio(ctx, w, h, font, vibe, res, inkColor) {
-  const size = Math.round(Math.max(w, h) * 0.007);
-  const pad = Math.max(w, h) * 0.024;
-  
+  const longEdge = Math.max(w, h);
+  const isCompact = longEdge < 1500;
+  const size = Math.max(isCompact ? 18 : 12, Math.round(longEdge * 0.007));
+  const pad = longEdge * 0.024;
+
   ctx.save();
   ctx.font = `300 ${size}px 'DM Mono', monospace`;
   ctx.fillStyle = inkColor || '#000000';
   ctx.globalAlpha = 0.4;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
-  
-  const label = `TYPE: ${font.label.toUpperCase()} / VIBE: ${vibe.toUpperCase()} / RES: ${res.width}×${res.height} / MENDIAK.GITHUB.IO/PLAINTEXT v1.2`;
-  ctx.fillText(label, pad, h - pad);
+
+  if (isCompact) {
+    ctx.fillText('MENDIAK.GITHUB.IO/PLAINTEXT', pad, h - pad);
+  } else {
+    const label = `TYPE: ${font.label.toUpperCase()} / VIBE: ${vibe.toUpperCase()} / RES: ${res.width}×${res.height} / MENDIAK.GITHUB.IO/PLAINTEXT v1.2`;
+    ctx.fillText(label, pad, h - pad);
+  }
   ctx.restore();
 }
 
