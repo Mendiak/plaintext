@@ -61,7 +61,7 @@ System Volume Information/
 .antigravitycli/
 .claude/
 .cursor/
-skills-lock.json
+# skills-lock.json is committed on purpose: it pins the installed skills.
 
 # Temporary files
 tmp/
