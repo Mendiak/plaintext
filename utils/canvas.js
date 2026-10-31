@@ -1,4 +1,5 @@
 import { vibeStyles } from './styles.js';
+import { hashString, mulberry32 } from './random.js';
 
 /* ─────────────────────────────────────────────────────────────
    TEXT UTILITIES
@@ -89,39 +90,147 @@ function clearInkBleed(ctx) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   BACKGROUND & TEXTURE
+   PATTERN OVERLAYS
+   Deterministic per quote/style: resizing or re-rendering the same
+   wallpaper never reshuffles the composition.
 ──────────────────────────────────────────────────────────────── */
 
-function drawTypographicBg(ctx, w, h, colors, text, fontFamily, vibe) {
-  ctx.save();
-
+function drawTypographicBg(ctx, w, h, { text, fontFamily, color, rand }) {
   const letters = [...text].filter(c => /\p{L}/u.test(c)).map(c => c.toUpperCase());
-  if (!letters.length) { ctx.restore(); return; }
+  if (!letters.length) return;
 
-  const style = vibeStyles[vibe] ?? vibeStyles.calm;
-  const fillColor = style.accentColor;
-
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 3; i++) {
     ctx.save();
 
-    const char = letters[i % letters.length];
-    const x = w * (0.15 + Math.random() * 0.7);
-    const y = h * (0.15 + Math.random() * 0.7);
-    const size = w * (0.65 + Math.random() * 0.30);
-    const rotation = (Math.random() - 0.5) * Math.PI * 0.6;
+    const char = letters[Math.floor(rand() * letters.length)];
+    const x = w * (0.1 + rand() * 0.8);
+    const y = h * (0.1 + rand() * 0.8);
+    const size = w * (0.55 + rand() * 0.5);
+    const rotation = (rand() - 0.5) * Math.PI * 0.6;
 
     ctx.translate(x, y);
     ctx.rotate(rotation);
     ctx.font = `bold ${size}px ${fontFamily}, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = fillColor;
-    ctx.globalAlpha = 0.03 + Math.random() * 0.04;
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.045 + rand() * 0.045;
     ctx.fillText(char, 0, 0);
 
     ctx.restore();
   }
+}
 
+function drawGridBg(ctx, w, h, { color, rand }) {
+  const step = w / (9 + Math.floor(rand() * 4));
+  const lineWidth = Math.max(1, w * 0.0012);
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.globalAlpha = 0.06;
+
+  for (let x = step; x < w; x += step) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+  }
+  for (let y = step; y < h; y += step) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+}
+
+function drawDotsBg(ctx, w, h, { color, rand }) {
+  const step = w / (20 + Math.floor(rand() * 8));
+  const radius = Math.max(1.1, w * 0.0026);
+
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.12;
+
+  for (let x = step / 2; x < w; x += step) {
+    for (let y = step / 2; y < h; y += step) {
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawDiagonalBg(ctx, w, h, { color, rand }) {
+  const step = w / (13 + Math.floor(rand() * 5));
+  const reach = Math.hypot(w, h);
+
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(-Math.PI / 4);
+  ctx.translate(-w / 2, -h / 2);
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(1, w * 0.0014);
+  ctx.globalAlpha = 0.055;
+
+  for (let x = -reach; x < reach * 2; x += step) {
+    ctx.beginPath();
+    ctx.moveTo(x, -reach);
+    ctx.lineTo(x, reach * 2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawHalftoneBg(ctx, w, h, { color, rand }) {
+  const cols = 14 + Math.floor(rand() * 6);
+  const step = w / cols;
+  const base = step * 0.28;
+  const phase = rand() * Math.PI * 2;
+  const rows = Math.ceil(h / step);
+
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.12;
+
+  for (let ix = 0; ix <= cols; ix++) {
+    for (let iy = 0; iy <= rows; iy++) {
+      const wave = Math.sin((ix / cols) * Math.PI * 2 + phase) *
+                   Math.cos((iy / rows) * Math.PI * 2 + phase);
+      const radius = base * (0.25 + 0.75 * Math.abs(wave));
+      ctx.beginPath();
+      ctx.arc(ix * step, iy * step, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+const PATTERN_RENDERERS = {
+  typographic: drawTypographicBg,
+  grid: drawGridBg,
+  dots: drawDotsBg,
+  diagonal: drawDiagonalBg,
+  halftone: drawHalftoneBg
+};
+
+/**
+ * Draws a deterministic pattern overlay on the current background.
+ * @param {string} kind - 'typographic' | 'grid' | 'dots' | 'diagonal' | 'halftone'
+ * @param {string} text - quote text (feeds the typographic pattern)
+ * @param {string} fontFamily
+ * @param {string} vibe
+ * @param {string|null} inkColor - resolved quote ink, keeps the pattern readable
+ * @param {string} seed
+ */
+function drawPattern(ctx, w, h, kind, text, fontFamily, vibe, inkColor, seed) {
+  const renderer = PATTERN_RENDERERS[kind];
+  if (!renderer) return;
+
+  const style = vibeStyles[vibe] ?? vibeStyles.calm;
+  const color = inkColor || style.accentColor;
+  const rand = mulberry32(hashString(`${kind}|${seed}`));
+
+  ctx.save();
+  renderer(ctx, w, h, { color, text, fontFamily, rand });
   ctx.restore();
 }
 
@@ -138,18 +247,45 @@ function drawGrain(ctx, w, h) {
   ctx.restore();
 }
 
-function drawBackground(ctx, w, h, colors) {
-  const aspect = w / h;
-  const isPortrait = aspect < 0.9;
-  const isSquare = aspect >= 0.9 && aspect <= 1.1;
-  const grad = isPortrait
-    ? ctx.createLinearGradient(0, 0, 0, h)
-    : isSquare
-    ? ctx.createLinearGradient(0, 0, w, h)
-    : ctx.createLinearGradient(0, 0, w * 0.6, h);
-    
-  grad.addColorStop(0, colors[0]);
-  grad.addColorStop(1, colors[1]);
+function drawBackground(ctx, w, h, colors, variant = null) {
+  let grad;
+
+  if (variant && Number.isFinite(variant.angle)) {
+    // Explicit orientation + stop distribution (the Random action).
+    // CSS angles: 0deg points up, 90deg points right; canvas y grows down.
+    const angle = ((variant.angle % 360) + 360) % 360;
+    const rad = (angle * Math.PI) / 180;
+    const dirX = Math.sin(rad);
+    const dirY = -Math.cos(rad);
+    const length = Math.abs(w * dirX) + Math.abs(h * dirY);
+    const cx = w / 2;
+    const cy = h / 2;
+
+    grad = ctx.createLinearGradient(
+      cx - (dirX * length) / 2,
+      cy - (dirY * length) / 2,
+      cx + (dirX * length) / 2,
+      cy + (dirY * length) / 2
+    );
+
+    const [s0, s1] = variant.stops || [0, 1];
+    grad.addColorStop(Math.min(Math.max(s0, 0), 1), colors[0]);
+    grad.addColorStop(Math.min(Math.max(s1, 0), 1), colors[1]);
+  } else {
+    // Default: orientation adapts to the canvas aspect ratio.
+    const aspect = w / h;
+    const isPortrait = aspect < 0.9;
+    const isSquare = aspect >= 0.9 && aspect <= 1.1;
+    grad = isPortrait
+      ? ctx.createLinearGradient(0, 0, 0, h)
+      : isSquare
+      ? ctx.createLinearGradient(0, 0, w, h)
+      : ctx.createLinearGradient(0, 0, w * 0.6, h);
+
+    grad.addColorStop(0, colors[0]);
+    grad.addColorStop(1, colors[1]);
+  }
+
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
 
@@ -305,27 +441,15 @@ function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en
   const usePortrait = aspect < 0.9;
   const useSquare = aspect >= 0.9 && aspect <= 1.1;
 
-  // Grid split: 28% | 2% gutter | 70%
+  // Offset grid: the quote sits in the right column, the left stays empty.
   // On mobile portrait, we reduce the offset effect to give more room to text
-  const colLeft  = w * (usePortrait ? 0.15 : useSquare ? 0.22 : 0.28);
   const colRight = w * (usePortrait ? 0.20 : useSquare ? 0.26 : 0.32);
-  const padY     = h * 0.15;
   const maxRightW = w - colRight - w * 0.08;
 
   const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
 
-  // ── vertical line separating columns
-  ctx.beginPath();
-  ctx.strokeStyle = textColor;
-  ctx.lineWidth = 1;
-  ctx.globalAlpha = 0.1;
-  ctx.moveTo(colLeft + w * 0.01, padY);
-  ctx.lineTo(colLeft + w * 0.01, h - padY);
-  ctx.stroke();
-  ctx.globalAlpha = 1;
-
-
-  // ── quote on the right column
+  // ── quote on the right column (no divider: patterns and grids
+  // already provide structure, and a rule here made them collide)
   const baseSize = usePortrait ? Math.round(w * 0.06) : useSquare ? Math.round(w * 0.05) : Math.round(w * 0.038);
   const fontStr  = `${font.weight} __SIZE__ ${font.family}`;
   const leading  = font.leading || 1.35;
@@ -366,11 +490,22 @@ function layoutOffset(ctx, quote, vibe, w, h, font, layout, inkColor, lang = 'en
   ctx.restore();
 }
 
+/* ─────────────────────────────────────────────────────────────
+   CREDIT (logo + URL, one in each corner)
+──────────────────────────────────────────────────────────────── */
+
+const WATERMARK_PATH = new Path2D(
+  "M31.999 2c-16.568 0-30 13.432-30 30s13.432 30 30 30C48.568 62 62 48.568 62 32S48.568 2 31.999 2" +
+  "m9.398 31.949c-1.699 1.418-4.125 2.125-7.277 2.125h-6.041v10.434h-6.023V17.492h12.458" +
+  "c2.872 0 5.162.748 6.87 2.244c1.707 1.496 2.562 3.813 2.562 6.949c-.001 3.424-.85 5.846-2.549 7.264"
+);
+
+const CREDIT_URL = 'MENDIAK.GITHUB.IO/PLAINTEXT';
+
 /**
- * Technical folio metadata in the bottom-left.
- * Includes URL as part of the technical information.
+ * Site URL in the bottom-left corner.
  */
-function drawFolio(ctx, w, h, font, vibe, res, inkColor) {
+function drawFolio(ctx, w, h, inkColor) {
   const longEdge = Math.max(w, h);
   const isCompact = longEdge < 1500;
   const size = Math.max(isCompact ? 18 : 12, Math.round(longEdge * 0.007));
@@ -382,28 +517,12 @@ function drawFolio(ctx, w, h, font, vibe, res, inkColor) {
   ctx.globalAlpha = 0.4;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
-
-  if (isCompact) {
-    ctx.fillText('MENDIAK.GITHUB.IO/PLAINTEXT', pad, h - pad);
-  } else {
-    const label = `TYPE: ${font.label.toUpperCase()} / VIBE: ${vibe.toUpperCase()} / RES: ${res.width}×${res.height} / MENDIAK.GITHUB.IO/PLAINTEXT v1.2`;
-    ctx.fillText(label, pad, h - pad);
-  }
+  ctx.fillText(CREDIT_URL, pad, h - pad);
   ctx.restore();
 }
 
-/* ─────────────────────────────────────────────────────────────
-   WATERMARK
-──────────────────────────────────────────────────────────────── */
-
-const WATERMARK_PATH = new Path2D(
-  "M31.999 2c-16.568 0-30 13.432-30 30s13.432 30 30 30C48.568 62 62 48.568 62 32S48.568 2 31.999 2" +
-  "m9.398 31.949c-1.699 1.418-4.125 2.125-7.277 2.125h-6.041v10.434h-6.023V17.492h12.458" +
-  "c2.872 0 5.162.748 6.87 2.244c1.707 1.496 2.562 3.813 2.562 6.949c-.001 3.424-.85 5.846-2.549 7.264"
-);
-
 /**
- * Draws watermark in bottom-right corner.
+ * Logo in the bottom-right corner.
  */
 function drawWatermark(ctx, w, h, inkColor) {
   const size = Math.max(w, h) * 0.024;
@@ -430,9 +549,11 @@ function drawWatermark(ctx, w, h, inkColor) {
  * @param {string} layout - 'editorial' | 'ruled' | 'offset'
  * @param {string|null} inkColor - typography color override
  * @param {string} lang - 'en' | 'es'
- * @param {string} bgStyle - 'classic' | 'typographic'
+ * @param {string} pattern - 'none' | 'typographic' | 'grid' | 'dots' | 'diagonal' | 'halftone'
+ * @param {string} seed - stable seed for the pattern composition
+ * @param {{ angle: number, stops: number[] }|null} gradientVariant - recomposed gradient
  */
-export function renderWallpaper(quote, resolution, gradient, font, layout, inkColor = null, lang = 'en', bgStyle = 'classic') {
+export function renderWallpaper(quote, resolution, gradient, font, layout, inkColor = null, lang = 'en', pattern = 'none', seed = '', gradientVariant = null) {
   const { width: w, height: h } = resolution;
   const canvas = document.getElementById('canvas');
   const ctx    = canvas.getContext('2d');
@@ -441,12 +562,13 @@ export function renderWallpaper(quote, resolution, gradient, font, layout, inkCo
   canvas.height = h;
 
   // 1. Base color/gradient
-  drawBackground(ctx, w, h, gradient);
+  drawBackground(ctx, w, h, gradient, gradientVariant);
 
-  // 2. Pattern overlay (background texture)
-  if (bgStyle === 'typographic') {
+  // 2. Pattern overlay (deterministic per quote + style)
+  if (pattern && pattern !== 'none') {
     const text = quote[lang === 'es' ? 'text_es' : 'text'] || quote.text;
-    drawTypographicBg(ctx, w, h, gradient, text, font.family, quote.vibe);
+    const patternSeed = `${seed}|${quote.text || text}|${font.id}|${layout}`;
+    drawPattern(ctx, w, h, pattern, text, font.family, quote.vibe, inkColor, patternSeed);
   }
 
   // 3. Typographic composition
@@ -454,9 +576,7 @@ export function renderWallpaper(quote, resolution, gradient, font, layout, inkCo
   else if (layout === 'offset') layoutOffset(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
   else                          layoutEditorial(ctx, quote, quote.vibe, w, h, font, layout, inkColor, lang);
 
-  // 4. Technical folio (metadata)
-  drawFolio(ctx, w, h, font, quote.vibe, resolution, inkColor);
-
-  // 5. Watermark (branding)
+  // 4. Credit: URL bottom-left, logo bottom-right
+  drawFolio(ctx, w, h, inkColor);
   drawWatermark(ctx, w, h, inkColor);
 }

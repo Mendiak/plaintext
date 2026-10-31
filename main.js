@@ -1,5 +1,20 @@
 import { getRandomItem } from './utils/random.js';
-import { FONTS, FONT_FAMILIES, getGradient, getLayout, INK_COLORS, checkIsDark, LAYOUTS, PAPER_COLORS } from './utils/styles.js';
+import {
+  FONTS,
+  FONT_FAMILIES,
+  FONT_CATEGORY_LABELS,
+  getGradient,
+  getGradientPreview,
+  getGradientVariantPreview,
+  resolveGradientKey,
+  AUTO_GRADIENT_PREVIEW,
+  isDarkGradient,
+  INK_COLORS,
+  LAYOUTS,
+  PAPER_COLORS,
+  PATTERNS,
+  GRADIENT_OPTIONS
+} from './utils/styles.js';
 import { renderWallpaper } from './utils/canvas.js';
 
 /* ──────────────────────────────────────────────────────
@@ -44,15 +59,16 @@ const translations = {
     pattern: "Pattern",
     nextQuote: "Next Quote",
     shuffle: "Shuffle",
+    randomGradient: "New orientation",
     download: "Download",
     vibe: "Vibe",
     vibeFilter: "Vibe",
     layoutLabel: "Layout",
+    patternLabel: "Pattern",
     customQuote: "Custom Quote",
     customQuotePlaceholder: "Type your own quote…",
     customAuthorPlaceholder: "Author (optional)",
     pressGenerate: "Press Generate to create a wallpaper.",
-    footer: (n, vibes, fonts, patterns) => `${n} quotes · ${vibes} vibes · ${fonts} typefaces · ${patterns} ${patterns === 1 ? 'pattern' : 'patterns'}`,
     copied: "Copied",
     shortcuts: "Shortcuts",
     resolutions: {
@@ -88,13 +104,22 @@ const translations = {
       },
       gradient: {
         auto: "Auto — by Vibe",
-        vibrant: "Vibrant — colors",
-        calm: "Calm — subtle",
-        chaotic: "Chaotic — intense",
-        serious: "Serious — dark"
+        paper: "Paper — warm neutral",
+        sky: "Sky — cool blue",
+        mint: "Mint — soft green",
+        blush: "Blush — pale rose",
+        sand: "Sand — warm beige",
+        stone: "Stone — neutral grey",
+        night: "Night — deep navy",
+        forest: "Forest — deep green"
       },
       pattern: {
-        typographic: "Typographic"
+        none: "None",
+        typographic: "Typographic",
+        grid: "Grid",
+        dots: "Dots",
+        diagonal: "Diagonal",
+        halftone: "Halftone"
       }
     },
     inks: {
@@ -105,8 +130,7 @@ const translations = {
       muted: "Steel Grey"
     },
     developedBy: "by",
-    headerSub: "Quote-driven typographic posters",
-    copyQuote: "Copy quote"
+    headerSub: "Quote-driven typographic posters"
   },
   es: {
     resolution: "Resolución",
@@ -119,15 +143,16 @@ const translations = {
     pattern: "Patrón",
     nextQuote: "Siguiente Cita",
     shuffle: "Aleatorio",
+    randomGradient: "Nueva orientación",
     download: "Descargar",
     vibe: "Ambiente",
     vibeFilter: "Ambiente",
     layoutLabel: "Diseño",
+    patternLabel: "Patrón",
     customQuote: "Cita Personalizada",
     customQuotePlaceholder: "Escribe tu propia cita…",
     customAuthorPlaceholder: "Autor (opcional)",
     pressGenerate: "Presiona Generar para crear un wallpaper.",
-    footer: (n, vibes, fonts, patterns) => `${n} citas · ${vibes} ambientes · ${fonts} tipografías · ${patterns} ${patterns === 1 ? 'patrón' : 'patrones'}`,
     copied: "Copiado",
     shortcuts: "Atajos",
     resolutions: {
@@ -163,13 +188,22 @@ const translations = {
       },
       gradient: {
         auto: "Auto — por Ambiente",
-        vibrant: "Vibrante — colores",
-        calm: "Calma — sutil",
-        chaotic: "Caótico — intenso",
-        serious: "Serio — oscuro"
+        paper: "Papel — neutro cálido",
+        sky: "Cielo — azul frío",
+        mint: "Menta — verde suave",
+        blush: "Rubor — rosa pálido",
+        sand: "Arena — beige cálido",
+        stone: "Piedra — gris neutro",
+        night: "Noche — azul profundo",
+        forest: "Bosque — verde profundo"
       },
       pattern: {
-        typographic: "Tipográfico"
+        none: "Ninguno",
+        typographic: "Tipográfico",
+        grid: "Retícula",
+        dots: "Puntos",
+        diagonal: "Diagonal",
+        halftone: "Semitono"
       }
     },
     inks: {
@@ -180,8 +214,7 @@ const translations = {
       muted: "Gris Acero"
     },
     developedBy: "por",
-    headerSub: "Wallpapers tipográficos a partir de citas",
-    copyQuote: "Copiar cita"
+    headerSub: "Wallpapers tipográficos a partir de citas"
   }
 };
 
@@ -198,6 +231,7 @@ function updateUI() {
   document.querySelector('label[for="font-trigger"]').textContent = t.typeface;
   document.querySelector('label[for="layout-trigger"]').textContent = t.layout;
   document.querySelector('label[for="ink-trigger"]').textContent = t.ink;
+  document.getElementById('label-pattern').textContent = t.patternLabel;
   document.getElementById('custom-quote-label').textContent = t.customQuote;
   document.getElementById('label-vibe-filter').textContent = t.vibeFilter;
   document.getElementById('label-background').textContent = t.background;
@@ -206,10 +240,9 @@ function updateUI() {
   document.getElementById('custom-quote').placeholder = t.customQuotePlaceholder;
   document.getElementById('custom-author').placeholder = t.customAuthorPlaceholder;
 
-  // Tabs
+  // Tabs (Solid | Gradient). Pattern is an overlay dropdown, not a tab.
   document.getElementById('tab-solid').textContent = t.solid;
   document.getElementById('tab-gradient').textContent = t.gradient;
-  document.getElementById('tab-pattern').textContent = t.pattern;
 
   // Buttons
   document.getElementById('btn-generate').textContent = t.nextQuote;
@@ -224,13 +257,6 @@ function updateUI() {
   document.getElementById('vf-serious').textContent = t.vibes.serious;
   document.getElementById('vf-chaotic').textContent = t.vibes.chaotic;
 
-  // Copy button
-  const copyBtn = document.getElementById('btn-copy');
-  if (copyBtn) {
-    copyBtn.title = t.copyQuote;
-    copyBtn.setAttribute('aria-label', t.copyQuote);
-  }
-
   // Custom quote fields (inside a collapsible group, so they need explicit labels)
   document.getElementById('custom-quote').setAttribute('aria-label', t.customQuote);
   document.getElementById('custom-author').setAttribute('aria-label', t.customAuthorPlaceholder);
@@ -239,34 +265,21 @@ function updateUI() {
   const creditTextEl = document.getElementById('credit-text');
   if (creditTextEl) creditTextEl.textContent = t.developedBy;
 
-  // Footer
-  const filteredLen = currentVibeFilter === 'all'
-    ? allQuotes.length
-    : allQuotes.filter(q => q.vibe === currentVibeFilter).length;
-  const uniqueVibes = new Set(allQuotes.map(q => q.vibe)).size;
-  const patternCount = Object.keys(t.backgrounds.pattern).length;
-  document.getElementById('sidebar-footer').textContent = t.footer(filteredLen, uniqueVibes, FONTS.length, patternCount);
-
-  // Update dropdown options text
+  // Update dropdown option labels by data-value, so order never matters.
   const updateDropdownOptions = (menuId, texts) => {
-    const menu = document.getElementById(menuId);
-    const options = menu.querySelectorAll('.dropdown__option');
-    options.forEach((opt, index) => {
-      if (texts[index]) opt.textContent = texts[index];
+    document.querySelectorAll(`#${menuId} .dropdown__option`).forEach((opt) => {
+      const label = texts[opt.dataset.value];
+      if (!label) return;
+      const textEl = opt.querySelector('.dropdown__option-text');
+      if (textEl) textEl.textContent = label;
+      else opt.textContent = label;
     });
   };
 
-  const resTexts = [
-    t.resolutions.desktop,
-    t.resolutions.desktop_1440p,
-    t.resolutions.desktop_4k,
-    t.resolutions.desktop_ultrawide,
-    t.resolutions.mobile,
-    t.resolutions.instagram,
-    t.resolutions.og
-  ];
-  updateDropdownOptions('resolution-menu', resTexts);
-  updateDropdownOptions('layout-menu', [t.layouts.editorial, t.layouts.ruled, t.layouts.offset]);
+  updateDropdownOptions('resolution-menu', t.resolutions);
+  updateDropdownOptions('layout-menu', t.layouts);
+  updateDropdownOptions('pattern-menu', t.backgrounds.pattern);
+  updateDropdownOptions('ink-menu', t.inks);
   
   document.querySelectorAll('#solid-swatches .swatch').forEach((sw) => {
     const name = t.backgrounds.solid[sw.dataset.value];
@@ -275,15 +288,51 @@ function updateUI() {
       sw.setAttribute('aria-label', name);
     }
   });
-  
-  const gradientTexts = Object.keys(t.backgrounds.gradient).map(k => t.backgrounds.gradient[k]);
-  updateDropdownOptions('gradient-menu', gradientTexts);
-  
-  const patternTexts = Object.keys(t.backgrounds.pattern).map(k => t.backgrounds.pattern[k]);
-  updateDropdownOptions('pattern-menu', patternTexts);
-  
-  const inkTexts = Object.keys(t.inks).map(k => t.inks[k]);
-  updateDropdownOptions('ink-menu', inkTexts);
+
+  document.querySelectorAll('#gradient-swatches .swatch').forEach((sw) => {
+    const name = t.backgrounds.gradient[sw.dataset.value];
+    if (name) {
+      sw.title = name;
+      sw.setAttribute('aria-label', name);
+    }
+  });
+  document.getElementById('solid-swatches').setAttribute('aria-label', t.background);
+  document.getElementById('gradient-swatches').setAttribute('aria-label', t.gradient);
+
+  const randomGradientBtn = document.getElementById('btn-random-gradient');
+  randomGradientBtn.title = t.randomGradient;
+  randomGradientBtn.setAttribute('aria-label', t.randomGradient);
+
+  updateGradientPreviews();
+}
+
+/**
+ * Swatches are painted once: each one represents a fixed palette, so they
+ * never morph when the quote changes. A recomposed variant (angle + stops)
+ * is only shown on the selected swatch, which keeps it truthful.
+ */
+function updateGradientPreviews(variant = null, activeValue = null) {
+  document.querySelectorAll('#gradient-swatches .swatch').forEach((sw) => {
+    const key = sw.dataset.value;
+    if (key === 'auto') {
+      sw.style.backgroundImage = AUTO_GRADIENT_PREVIEW;
+      return;
+    }
+    sw.style.backgroundImage = variant && key === activeValue
+      ? getGradientVariantPreview(getGradient(key), variant)
+      : getGradientPreview(key);
+  });
+}
+
+/** Controlled recomposition: 15° steps and soft stop bands. */
+function randomGradientVariant() {
+  return {
+    angle: Math.round(Math.random() * 23) * 15,
+    stops: [
+      Math.round(Math.random() * 20) / 100,
+      Math.round(80 + Math.random() * 20) / 100
+    ]
+  };
 }
 
 const fontLink = document.createElement('link');
@@ -312,8 +361,11 @@ let currentFont     = FONTS[0];
 let currentLayout   = 'editorial';
 let currentRes      = RESOLUTIONS.desktop;
 let currentResKey   = 'desktop';
-let currentBgType   = 'solid';
-let currentBgValue  = 'white';
+let currentBaseType  = 'solid';
+let currentBaseValue = 'white';
+let currentPattern   = 'none';
+let currentGradientVariant = null;
+let currentSeed      = '';
 let currentInk      = 'auto';
 let currentLang     = FORCED_LANG
   || URL_PARAMS.get('lang')
@@ -364,29 +416,53 @@ function setVibeFilter(vibe) {
   });
   // Re-filter pool
   quotes = vibe === 'all' ? allQuotes : allQuotes.filter(q => q.vibe === vibe);
-  // Update footer count
-  const t = translations[currentLang];
-  const uniqueVibes = new Set(allQuotes.map(q => q.vibe)).size;
-  const patternCount = Object.keys(t.backgrounds.pattern).length;
-  document.getElementById('sidebar-footer').textContent = t.footer(quotes.length, uniqueVibes, FONTS.length, patternCount);
 }
 
 /* ──────────────────────────────────────────────────────
    CUSTOM DROPDOWN COMPONENT
 ────────────────────────────────────────────────────────── */
+function closeAllDropdowns(exceptMenu = null) {
+  document.querySelectorAll('.dropdown__menu--open').forEach((menu) => {
+    if (menu === exceptMenu) return;
+    menu.classList.remove('dropdown__menu--open');
+    const trigger = menu.previousElementSibling;
+    trigger?.classList.remove('dropdown__trigger--open');
+    trigger?.setAttribute('aria-expanded', 'false');
+    menu.querySelectorAll('.dropdown__option--active').forEach(o => o.classList.remove('dropdown__option--active'));
+  });
+}
+
+function optionLabel(option) {
+  return option.querySelector('.dropdown__option-text')?.textContent ?? option.textContent;
+}
+
 function createDropdown(id, options, initialValue, onChange) {
   const trigger = document.getElementById(`${id}-trigger`);
   const menu = document.getElementById(`${id}-menu`);
   const valueEl = trigger.querySelector('.dropdown__value');
   let currentValue = initialValue;
+  let activeIndex = 0;
 
   // Give the listbox an accessible name taken from its visible label.
   const labelEl = trigger.closest('.control-group')?.querySelector('.label');
   if (labelEl) menu.setAttribute('aria-label', labelEl.textContent.trim());
+  trigger.setAttribute('aria-controls', menu.id);
+  menu.setAttribute('tabindex', '-1');
 
   // Populate options if menu is empty
   if (menu.children.length === 0 && options) {
+    let currentGroup = null;
     options.forEach(opt => {
+      // Optional, non-selectable heading. optionEls() only queries
+      // .dropdown__option, so keyboard and hover logic ignore it.
+      if (opt.group && opt.group !== currentGroup) {
+        currentGroup = opt.group;
+        const heading = document.createElement('div');
+        heading.className = 'dropdown__group';
+        heading.textContent = opt.group;
+        heading.setAttribute('role', 'presentation');
+        menu.appendChild(heading);
+      }
       const div = document.createElement('div');
       div.className = 'dropdown__option';
       div.dataset.value = opt.value;
@@ -401,53 +477,122 @@ function createDropdown(id, options, initialValue, onChange) {
     });
   }
 
+  // Stable ids let the trigger point at the highlighted option.
+  menu.querySelectorAll('.dropdown__option').forEach((opt, index) => {
+    if (!opt.id) opt.id = `${menu.id}-opt-${index}`;
+  });
+
+  const optionEls = () => [...menu.querySelectorAll('.dropdown__option')];
+
   const updateDisplay = () => {
     const selectedOption = menu.querySelector(`[data-value="${currentValue}"]`);
-    if (selectedOption) {
-      valueEl.textContent = selectedOption.textContent;
-      menu.querySelectorAll('.dropdown__option').forEach(opt => {
-        opt.classList.remove('dropdown__option--selected');
-        opt.setAttribute('aria-selected', 'false');
-      });
-      selectedOption.classList.add('dropdown__option--selected');
-      selectedOption.setAttribute('aria-selected', 'true');
-    }
+    if (!selectedOption) return;
+    valueEl.textContent = optionLabel(selectedOption);
+    optionEls().forEach(opt => {
+      opt.classList.remove('dropdown__option--selected');
+      opt.setAttribute('aria-selected', 'false');
+    });
+    selectedOption.classList.add('dropdown__option--selected');
+    selectedOption.setAttribute('aria-selected', 'true');
   };
 
-  const toggle = () => {
-    const isOpen = menu.classList.contains('dropdown__menu--open');
-    // Close all other dropdowns first
-    document.querySelectorAll('.dropdown__menu--open').forEach(m => {
-      if (m !== menu) {
-        m.classList.remove('dropdown__menu--open');
-        m.previousElementSibling.classList.remove('dropdown__trigger--open');
-        m.previousElementSibling.setAttribute('aria-expanded', 'false');
-      }
-    });
-    
-    menu.classList.toggle('dropdown__menu--open');
-    trigger.classList.toggle('dropdown__trigger--open');
-    trigger.setAttribute('aria-expanded', !isOpen);
+  const setActive = (index) => {
+    const items = optionEls();
+    if (!items.length) return;
+    activeIndex = (index + items.length) % items.length;
+    items.forEach((item, i) => item.classList.toggle('dropdown__option--active', i === activeIndex));
+    trigger.setAttribute('aria-activedescendant', items[activeIndex].id);
+    // Keep the highlighted option visible in the scrollable menu.
+    items[activeIndex].scrollIntoView({ block: 'nearest' });
+  };
+
+  const isOpen = () => menu.classList.contains('dropdown__menu--open');
+
+  const open = () => {
+    closeAllDropdowns(menu);
+    menu.classList.add('dropdown__menu--open');
+    trigger.classList.add('dropdown__trigger--open');
+    trigger.setAttribute('aria-expanded', 'true');
+    const items = optionEls();
+    const selected = items.indexOf(menu.querySelector('.dropdown__option--selected'));
+    setActive(selected >= 0 ? selected : 0);
+  };
+
+  const close = () => {
+    menu.classList.remove('dropdown__menu--open');
+    trigger.classList.remove('dropdown__trigger--open');
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.removeAttribute('aria-activedescendant');
+    menu.querySelectorAll('.dropdown__option--active').forEach(o => o.classList.remove('dropdown__option--active'));
   };
 
   const select = (value) => {
     currentValue = value;
     updateDisplay();
+    close();
+    trigger.focus({ preventScroll: true });
     onChange(value);
-    // Close dropdown
-    menu.classList.remove('dropdown__menu--open');
-    trigger.classList.remove('dropdown__trigger--open');
-    trigger.setAttribute('aria-expanded', 'false');
   };
 
   // Event listeners
-  trigger.addEventListener('click', toggle);
+  trigger.addEventListener('click', () => {
+    if (isOpen()) close();
+    else open();
+  });
+
+  trigger.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        if (isOpen()) setActive(activeIndex + 1);
+        else open();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        if (isOpen()) setActive(activeIndex - 1);
+        else open();
+        break;
+      case 'Home':
+        if (!isOpen()) break;
+        e.preventDefault();
+        setActive(0);
+        break;
+      case 'End':
+        if (!isOpen()) break;
+        e.preventDefault();
+        setActive(optionEls().length - 1);
+        break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        if (isOpen()) select(optionEls()[activeIndex].dataset.value);
+        else open();
+        break;
+      case 'Escape':
+        if (isOpen()) {
+          e.preventDefault();
+          close();
+        }
+        break;
+      case 'Tab':
+        if (isOpen()) close();
+        break;
+    }
+  });
 
   menu.addEventListener('click', (e) => {
     const option = e.target.closest('.dropdown__option');
     if (option) {
       select(option.dataset.value);
     }
+  });
+
+  menu.addEventListener('mousemove', (e) => {
+    if (!isOpen()) return;
+    const option = e.target.closest('.dropdown__option');
+    if (!option) return;
+    const index = optionEls().indexOf(option);
+    if (index >= 0 && index !== activeIndex) setActive(index);
   });
 
   // Initialize display
@@ -472,27 +617,6 @@ function toggleKbdPanel(open) {
 }
 
 /* ──────────────────────────────────────────────────────
-   COPY CURRENT QUOTE
-────────────────────────────────────────────────────────── */
-function copyCurrentQuote() {
-  if (!currentQuote) return;
-  const text = currentLang === 'es'
-    ? (currentQuote.text_es || currentQuote.text)
-    : currentQuote.text;
-  const author = currentQuote.author && currentQuote.author !== '—' ? currentQuote.author : '';
-  const full = author ? `${text}\n${author}` : text;
-
-  navigator.clipboard.writeText(full).then(() => {
-    track('quote_copied');
-    const btn = document.getElementById('btn-copy');
-    if (btn) {
-      btn.classList.add('btn--done');
-      setTimeout(() => btn.classList.remove('btn--done'), 900);
-    }
-  }).catch(() => {});
-}
-
-/* ──────────────────────────────────────────────────────
    FETCH QUOTES & BOOT
 ────────────────────────────────────────────────────────── */
 async function init() {
@@ -500,6 +624,9 @@ async function init() {
     // Restore dark mode preference
     const savedDark = localStorage.getItem('plaintext-dark');
     if (savedDark === '1') applyDarkMode(true);
+
+    // Apply translations before the network round-trip to avoid an English flash.
+    updateUI();
 
     const res = await fetch(`${BASE}data/quotes.json`);
     allQuotes = await res.json();
@@ -513,10 +640,10 @@ async function init() {
     const generateBtn   = document.getElementById('btn-generate');
     const shuffleBtn    = document.getElementById('btn-shuffle');
     const downloadBtn   = document.getElementById('btn-download');
-    const copyBtn       = document.getElementById('btn-copy');
     const tabSolid      = document.getElementById('tab-solid');
     const tabGradient   = document.getElementById('tab-gradient');
-    const tabPattern    = document.getElementById('tab-pattern');
+    const solidPanel      = document.getElementById('solid-controls');
+    const gradientPanel   = document.getElementById('gradient-controls');
     const langEn        = document.getElementById('lang-en');
     const langEs        = document.getElementById('lang-es');
     const canvas        = document.getElementById('canvas');
@@ -541,7 +668,12 @@ async function init() {
       draw();
     });
 
-    const fontDropdown = createDropdown('font', FONTS.map(f => ({ value: f.id, label: f.label, family: f.family })), FONTS[0].id, (value) => {
+    const fontDropdown = createDropdown('font', FONTS.map(f => ({
+      value: f.id,
+      label: f.label,
+      family: f.family,
+      group: FONT_CATEGORY_LABELS[f.category]
+    })), FONTS[0].id, (value) => {
       currentFont = FONTS.find(f => f.id === value) ?? FONTS[0];
       draw();
     });
@@ -551,8 +683,9 @@ async function init() {
       draw();
     });
 
-    // Solid colours are a row of swatches rather than a dropdown.
+    // Background controls are rows of swatches rather than dropdowns.
     const swatchEls = [...document.querySelectorAll('#solid-swatches .swatch')];
+    const solidOptions = ['white', 'cream', 'ivory', 'sand', 'clay', 'slate', 'charcoal', 'black'];
     const setSwatch = (value) => {
       swatchEls.forEach(sw => {
         const on = sw.dataset.value === value;
@@ -562,21 +695,60 @@ async function init() {
     };
     const solidControl = {
       getValue: () => swatchEls.find(sw => sw.classList.contains('swatch--active'))?.dataset.value || 'white',
-      setValue: (value) => { currentBgValue = value; setSwatch(value); }
+      setValue: (value) => setSwatch(value)
     };
     swatchEls.forEach(sw => {
       sw.addEventListener('click', () => {
-        currentBgValue = sw.dataset.value;
-        setSwatch(currentBgValue);
+        currentBaseType = 'solid';
+        currentBaseValue = sw.dataset.value;
+        setSwatch(currentBaseValue);
         resolveBackground();
         draw();
       });
     });
 
-    const gradientDropdown = createDropdown('gradient', null, 'auto', (value) => {
-      currentBgValue = value;
+    const gradientSwatchEls = [...document.querySelectorAll('#gradient-swatches .swatch')];
+    const setGradientSwatch = (value) => {
+      gradientSwatchEls.forEach(sw => {
+        const on = sw.dataset.value === value;
+        sw.classList.toggle('swatch--active', on);
+        sw.setAttribute('aria-checked', String(on));
+      });
+    };
+    const gradientControl = {
+      getValue: () => gradientSwatchEls.find(sw => sw.classList.contains('swatch--active'))?.dataset.value || 'auto',
+      setValue: (value) => setGradientSwatch(value)
+    };
+    gradientSwatchEls.forEach(sw => {
+      sw.addEventListener('click', () => {
+        currentBaseType = 'gradient';
+        currentBaseValue = sw.dataset.value;
+        currentGradientVariant = null;
+        setGradientSwatch(currentBaseValue);
+        updateGradientPreviews();
+        resolveBackground();
+        draw();
+      });
+    });
+
+    // Random recomposes the current palette: new angle + stop distribution.
+    const randomGradientBtn = document.getElementById('btn-random-gradient');
+    randomGradientBtn.addEventListener('click', () => {
+      const vibe = currentQuote?.vibe || 'calm';
+      const value = resolveGradientKey(currentBaseValue, vibe);
+      currentBaseType = 'gradient';
+      currentBaseValue = value;
+      currentGradientVariant = randomGradientVariant();
+      setBaseTab('gradient');
+      setGradientSwatch(value);
+      updateGradientPreviews(currentGradientVariant, value);
       resolveBackground();
       draw();
+      track('gradient_randomized', {
+        gradient: value,
+        angle: currentGradientVariant.angle,
+        stops: currentGradientVariant.stops
+      });
     });
 
     const inkDropdown = createDropdown('ink', null, 'auto', (value) => {
@@ -584,21 +756,44 @@ async function init() {
       draw();
     });
 
-    const patternDropdown = createDropdown('pattern', null, 'typographic', (value) => {
-      currentBgValue = value;
-      resolveBackground();
+    // Pattern is an overlay: it sits on top of whichever background is active.
+    const patternDropdown = createDropdown('pattern', null, 'none', (value) => {
+      currentPattern = value;
       draw();
     });
 
-    const draw = () => {
+    // Canvas measures text with the active font, so wait for it before drawing.
+    // Without this, a font switched on demand would be measured with the fallback.
+    const ensureFontLoaded = async (font) => {
+      try {
+        await document.fonts.load(`${font.weight} 1em ${font.family}`, 'AaÁáÑñ');
+      } catch { /* fall back to the system font rather than blocking the draw */ }
+    };
+
+    // Only the latest draw wins: a slow font load must not repaint stale state.
+    let drawToken = 0;
+
+    const draw = async () => {
       if (!currentQuote && !customQuoteEl.value.trim()) return;
+      const token = ++drawToken;
+      await ensureFontLoaded(currentFont);
+      if (token !== drawToken) return;
       let inkColor = currentInk === 'auto' ? null : INK_COLORS[currentInk];
       if (!inkColor && currentGradient) {
-        const isDarkBg = checkIsDark(currentGradient[0]);
-        inkColor = isDarkBg ? INK_COLORS.light : INK_COLORS.dark;
+        inkColor = isDarkGradient(currentGradient) ? INK_COLORS.light : INK_COLORS.dark;
       }
-      const bgStyle = currentBgType === 'pattern' ? currentBgValue : 'classic';
-      renderWallpaper(currentQuote, currentRes, currentGradient, currentFont, currentLayout, inkColor, currentLang, bgStyle);
+      renderWallpaper(
+        currentQuote,
+        currentRes,
+        currentGradient,
+        currentFont,
+        currentLayout,
+        inkColor,
+        currentLang,
+        currentPattern,
+        currentSeed,
+        currentBaseType === 'gradient' ? currentGradientVariant : null
+      );
 
       const wrapW = wrapper.clientWidth;
       const wrapH = wrapper.clientHeight;
@@ -609,20 +804,13 @@ async function init() {
     };
 
     const resolveBackground = () => {
-      if (currentBgType === 'solid') {
-        currentGradient = PAPER_COLORS[currentBgValue] || PAPER_COLORS.white;
-      } else if (currentBgType === 'pattern') {
-        currentGradient = getGradient(currentQuote?.vibe || 'calm', 'subtle', 'auto');
-      } else {
-        let intensity = 'subtle';
-        let paper = 'auto';
-        if (currentBgValue === 'vibrant') {
-          intensity = 'vibrant';
-        } else if (['calm', 'chaotic', 'serious'].includes(currentBgValue)) {
-          paper = currentBgValue;
-        }
-        currentGradient = getGradient(currentQuote?.vibe || 'calm', intensity, paper);
+      if (currentBaseType === 'solid') {
+        currentGradient = PAPER_COLORS[currentBaseValue] || PAPER_COLORS.white;
+        return;
       }
+      const vibe = currentQuote?.vibe || 'calm';
+      // One option = one exact palette (Auto resolves via the quote's vibe).
+      currentGradient = getGradient(currentBaseValue, vibe);
     };
 
     const applyCustomQuote = () => {
@@ -648,6 +836,13 @@ async function init() {
         currentQuote = forcedQuote || getRandomItem(quotes);
       }
 
+      if (hasCustom) applyCustomQuote();
+
+      // Stable seed: same quote + style always yields the same background/pattern.
+      currentSeed = hasCustom
+        ? (slugify(customQuoteEl.value) || 'custom')
+        : slugify(currentQuote.text);
+
       if (randomizeStyles) {
         currentFont = getRandomItem(FONTS);
         fontDropdown.setValue(currentFont.id);
@@ -655,35 +850,35 @@ async function init() {
         currentLayout = getRandomItem(LAYOUTS);
         layoutDropdown.setValue(currentLayout);
 
-        currentBgType = getRandomItem(['solid', 'gradient', 'pattern']);
-        if (currentBgType === 'solid') {
-          tabSolid.click();
-          const solidOptions = ['white', 'cream', 'ivory', 'sand', 'clay', 'slate', 'charcoal', 'black'];
-          currentBgValue = getRandomItem(solidOptions);
-          solidControl.setValue(currentBgValue);
-        } else if (currentBgType === 'pattern') {
-          tabPattern.click();
-          currentBgValue = 'typographic';
-          patternDropdown.setValue('typographic');
+        currentBaseType = getRandomItem(['solid', 'gradient']);
+        if (currentBaseType === 'solid') {
+          currentBaseValue = getRandomItem(solidOptions);
+          solidControl.setValue(currentBaseValue);
         } else {
-          tabGradient.click();
-          const gradientOptions = ['auto', 'vibrant', 'calm', 'chaotic', 'serious'];
-          currentBgValue = getRandomItem(gradientOptions);
-          gradientDropdown.setValue(currentBgValue);
+          currentBaseValue = getRandomItem(GRADIENT_OPTIONS);
+          gradientControl.setValue(currentBaseValue);
         }
+        setBaseTab(currentBaseType);
+
+        // Bias towards no pattern so shuffles stay restrained.
+        currentPattern = getRandomItem(['none', 'none', ...PATTERNS.filter(p => p !== 'none')]);
+        patternDropdown.setValue(currentPattern);
+
+        // Style shuffle returns gradients to their canonical composition.
+        currentGradientVariant = null;
+        updateGradientPreviews();
 
         currentInk = 'auto';
         inkDropdown.setValue('auto');
       } else {
-        currentBgType = tabSolid.classList.contains('tab--active') ? 'solid' : tabGradient.classList.contains('tab--active') ? 'gradient' : 'pattern';
-        currentBgValue = currentBgType === 'solid' ? solidControl.getValue() : currentBgType === 'gradient' ? gradientDropdown.getValue() : patternDropdown.getValue();
+        currentBaseType = tabGradient.classList.contains('tab--active') ? 'gradient' : 'solid';
+        currentBaseValue = currentBaseType === 'solid' ? solidControl.getValue() : gradientControl.getValue();
+        currentPattern = patternDropdown.getValue();
         currentLayout = layoutDropdown.getValue();
         currentFont = FONTS.find(f => f.id === fontDropdown.getValue()) ?? FONTS[0];
       }
 
       resolveBackground();
-
-      if (hasCustom) applyCustomQuote();
 
       track('quote_generated', {
         vibe: currentQuote?.vibe || 'custom',
@@ -713,44 +908,49 @@ async function init() {
       });
     });
 
-    // Tab switching
-    tabSolid.addEventListener('click', () => {
-      tabSolid.classList.add('tab--active');
-      tabGradient.classList.remove('tab--active');
-      tabPattern.classList.remove('tab--active');
-      document.getElementById('solid-controls').classList.add('tab-content--active');
-      document.getElementById('gradient-controls').classList.remove('tab-content--active');
-      document.getElementById('pattern-controls').classList.remove('tab-content--active');
-      currentBgType  = 'solid';
-      currentBgValue = solidControl.getValue();
-      resolveBackground();
-      draw();
-    });
+    // Base tabs (Solid | Gradient) — ARIA tabs with arrow-key navigation
+    const setBaseTab = (type) => {
+      const isGradient = type === 'gradient';
+      tabSolid.classList.toggle('tab--active', !isGradient);
+      tabGradient.classList.toggle('tab--active', isGradient);
+      tabSolid.setAttribute('aria-selected', String(!isGradient));
+      tabGradient.setAttribute('aria-selected', String(isGradient));
+      tabSolid.tabIndex = isGradient ? -1 : 0;
+      tabGradient.tabIndex = isGradient ? 0 : -1;
+      const setPanel = (panel, active) => {
+        panel.classList.toggle('tab-content--active', active);
+        panel.toggleAttribute('inert', !active);
+        panel.setAttribute('aria-hidden', String(!active));
+      };
+      setPanel(solidPanel, !isGradient);
+      setPanel(gradientPanel, isGradient);
+    };
 
-    tabGradient.addEventListener('click', () => {
-      tabGradient.classList.add('tab--active');
-      tabSolid.classList.remove('tab--active');
-      tabPattern.classList.remove('tab--active');
-      document.getElementById('gradient-controls').classList.add('tab-content--active');
-      document.getElementById('solid-controls').classList.remove('tab-content--active');
-      document.getElementById('pattern-controls').classList.remove('tab-content--active');
-      currentBgType  = 'gradient';
-      currentBgValue = gradientDropdown.getValue();
+    const activateBase = (type) => {
+      currentBaseType = type;
+      setBaseTab(type);
+      currentBaseValue = type === 'solid' ? solidControl.getValue() : gradientControl.getValue();
       resolveBackground();
       draw();
-    });
+    };
 
-    tabPattern.addEventListener('click', () => {
-      tabPattern.classList.add('tab--active');
-      tabSolid.classList.remove('tab--active');
-      tabGradient.classList.remove('tab--active');
-      document.getElementById('pattern-controls').classList.add('tab-content--active');
-      document.getElementById('solid-controls').classList.remove('tab-content--active');
-      document.getElementById('gradient-controls').classList.remove('tab-content--active');
-      currentBgType  = 'pattern';
-      currentBgValue = patternDropdown.getValue();
-      resolveBackground();
-      draw();
+    tabSolid.addEventListener('click', () => activateBase('solid'));
+    tabGradient.addEventListener('click', () => activateBase('gradient'));
+
+    [tabSolid, tabGradient].forEach((tab) => {
+      tab.addEventListener('keydown', (e) => {
+        if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) return;
+        e.preventDefault();
+        const tabs = [tabSolid, tabGradient];
+        const index = tabs.indexOf(tab);
+        let next = index;
+        if (e.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') next = 0;
+        else next = tabs.length - 1;
+        activateBase(next === 0 ? 'solid' : 'gradient');
+        tabs[next].focus();
+      });
     });
 
     // Language toggle — navigates to the matching indexed URL so hreflang stays honest
@@ -774,28 +974,20 @@ async function init() {
     // Zen mode
     zenBtn.addEventListener('click', () => setZen(!isZen));
 
-    // Copy current quote
-    copyBtn.addEventListener('click', () => copyCurrentQuote());
-
     // Vibe filter buttons
     document.querySelectorAll('.vf-btn').forEach(btn => {
       btn.addEventListener('click', () => setVibeFilter(btn.dataset.vibe));
     });
 
-    // Custom quote — re-render on input
+    // Custom quote — re-render on input. Keep the background stable:
+    // re-resolving on every keystroke would make the gradient flicker.
     customQuoteEl.addEventListener('input', () => {
       if (customQuoteEl.value.trim()) {
-        if (applyCustomQuote()) {
-          resolveBackground();
-          draw();
-        }
+        if (applyCustomQuote()) draw();
       }
     });
     customAuthorEl.addEventListener('input', () => {
-      if (customQuoteEl.value.trim() && applyCustomQuote()) {
-        resolveBackground();
-        draw();
-      }
+      if (customQuoteEl.value.trim() && applyCustomQuote()) draw();
     });
 
     // Keyboard shortcut panel
@@ -816,6 +1008,8 @@ async function init() {
         }
         return;
       }
+      // Let buttons (including dropdown triggers and tabs) handle Space/Enter.
+      if ((tag === 'BUTTON' || tag === 'A') && (e.key === ' ' || e.key === 'Enter')) return;
 
       switch (e.key) {
         case ' ':
@@ -831,13 +1025,19 @@ async function init() {
           downloadBtn.click();
           break;
         case '1':
-          layoutDropdown.setValue('editorial');
+          currentLayout = 'editorial';
+          layoutDropdown.setValue(currentLayout);
+          draw();
           break;
         case '2':
-          layoutDropdown.setValue('ruled');
+          currentLayout = 'ruled';
+          layoutDropdown.setValue(currentLayout);
+          draw();
           break;
         case '3':
-          layoutDropdown.setValue('offset');
+          currentLayout = 'offset';
+          layoutDropdown.setValue(currentLayout);
+          draw();
           break;
         case 'z':
         case 'Z':
@@ -858,13 +1058,7 @@ async function init() {
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.dropdown')) {
-        document.querySelectorAll('.dropdown__menu--open').forEach(menu => {
-          menu.classList.remove('dropdown__menu--open');
-          menu.previousElementSibling.classList.remove('dropdown__trigger--open');
-          menu.previousElementSibling.setAttribute('aria-expanded', 'false');
-        });
-      }
+      if (!e.target.closest('.dropdown')) closeAllDropdowns();
     });
 
     window.addEventListener('resize', draw);

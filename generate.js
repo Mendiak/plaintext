@@ -90,7 +90,7 @@ const T = {
     quoteLead: (text) =>
       `“${text}” as a minimal typographic wallpaper. Generate this quote as a poster for desktop, mobile, Instagram or OG/Twitter: pick the typeface, layout and background, then download a high-resolution PNG.`,
     cta: 'Create this wallpaper',
-    ctaNote: 'Opens the generator with this quote preloaded. Free, no sign-up, no watermark.',
+    ctaNote: 'Opens the generator with this quote preloaded. Free, no sign-up — the PNG carries a discreet logo and URL credit.',
     otherLang: 'Read this quote in Spanish',
     related: 'More quotes',
     browseAll: 'Browse all quotes',
@@ -114,7 +114,7 @@ const T = {
     quoteLead: (text) =>
       `«${text}» como wallpaper tipográfico minimalista. Genera esta cita como wallpaper para escritorio, móvil, Instagram u OG/Twitter: elige tipografía, composición y fondo, y descarga un PNG en alta resolución.`,
     cta: 'Crear este wallpaper',
-    ctaNote: 'Abre el generador con esta cita ya cargada. Gratis, sin registro y sin marca de agua.',
+    ctaNote: 'Abre el generador con esta cita ya cargada. Gratis, sin registro: el PNG lleva un crédito discreto con el logo y la URL.',
     otherLang: 'Read this quote in English',
     related: 'Más citas',
     browseAll: 'Ver todas las citas',
@@ -439,7 +439,7 @@ function aboutPage(lang) {
     </ul>
 
     <h2>Diseño</h2>
-    <p>Las composiciones siguen principios de diseño suizo: retícula, jerarquía y espacio en blanco. Hay tres disposiciones (Editorial, Reglado y Desplazado), diez tipografías de Google Fonts y fondos sólidos, degradados o con patrón tipográfico.</p>
+    <p>Las composiciones siguen principios de diseño suizo: retícula, jerarquía y espacio en blanco. Hay tres disposiciones (Editorial, Reglado y Desplazado), dieciséis tipografías de Google Fonts y fondos sólidos, degradados o con patrón tipográfico.</p>
 
     <h2>Idiomas</h2>
     <p>La interfaz y la biblioteca de citas están disponibles en inglés y español.</p>
@@ -466,7 +466,7 @@ function aboutPage(lang) {
     </ul>
 
     <h2>Design</h2>
-    <p>The compositions follow Swiss design principles: grid, hierarchy and whitespace. There are three layouts (Editorial, Ruled and Offset), ten Google Fonts and solid, gradient or typographic-pattern backgrounds.</p>
+    <p>The compositions follow Swiss design principles: grid, hierarchy and whitespace. There are three layouts (Editorial, Ruled and Offset), sixteen Google Fonts, solid or gradient backgrounds, and optional typographic, grid, dot, diagonal or halftone patterns.</p>
 
     <h2>Languages</h2>
     <p>The interface and the quote library are available in English and Spanish.</p>
@@ -530,13 +530,13 @@ const COPY = {
       ['Instagram posts', 'Square 1080 × 1080 compositions with room for the quote to breathe.'],
       ['OG & Twitter cards', '1200 × 630 previews for articles, newsletters and link previews.'],
       ['Three layouts', 'Editorial, Ruled and Offset, all built on a Swiss grid.'],
-      ['Ten typefaces', 'Curated Google Fonts, plus solid, gradient and typographic-pattern backgrounds.']
+      ['Sixteen typefaces', 'Curated Google Fonts, plus solid and gradient backgrounds with optional geometric and typographic patterns.']
     ],
     howTitle: 'How it works',
     how: [
       ['Pick a quote', 'Browse the library by vibe (calm, serious or chaotic) or type your own text.'],
       ['Style it', 'Choose typeface, layout, background and ink. Auto-contrast picks a readable ink for you.'],
-      ['Download', 'Export a PNG at the exact resolution you need. No account, no watermark.']
+      ['Download', 'Export a PNG at the exact resolution you need. No account, no upsells: just one discreet credit, logo in one corner and URL in the other.']
     ],
     libraryTitle: 'Quote library',
     libraryText: (n) =>
@@ -546,12 +546,13 @@ const COPY = {
     aboutTitle: 'About Plaintext',
     aboutText: [
       'Plaintext is a free, single-purpose tool: it makes typographic posters out of words. It was built for people who like type, and it follows the idea that less is more. No templates, no stickers, no effects.',
-      'Everything renders in your browser on a canvas. Your text never leaves your device, there is nothing to sign up for and the exports carry no watermark.'
+      'Everything renders in your browser on a canvas. Your text never leaves your device, there is nothing to sign up for, and each export carries a discreet credit: the Plaintext logo in one corner and the site URL in the other.'
     ],
     aboutCta: 'More about Plaintext',
     faqTitle: 'Frequently asked questions',
     faq: [
-      ['Is Plaintext free?', 'Yes. The generator, the quote library and every export are free, with no account and no watermark.'],
+      ['Is Plaintext free?', 'Yes. The generator, the quote library and every export are free, with no account and no uploads.'],
+      ['What is the mark on the export?', 'A single discreet credit: the Plaintext logo in the bottom-right corner and mendiak.github.io/plaintext in the bottom-left. Neither overlaps the composition.'],
       ['Do I need to install anything?', 'No. It runs in the browser and works on desktop and mobile.'],
       ['Can I use the wallpapers commercially?', 'The quotes are in the public domain or short attributions; the typography comes from Google Fonts under open licences. The generated images are yours to use.'],
       ['Does Plaintext store my text?', 'No. Rendering happens locally on a canvas, so your text is never sent to a server.'],
@@ -574,13 +575,13 @@ const COPY = {
       ['Posts de Instagram', 'Composiciones cuadradas de 1080 × 1080 con espacio para que la cita respire.'],
       ['Tarjetas OG y Twitter', 'Previsualizaciones de 1200 × 630 para artículos, newsletters y enlaces.'],
       ['Tres composiciones', 'Editorial, Reglado y Desplazado, todas sobre retícula suiza.'],
-      ['Diez tipografías', 'Google Fonts seleccionadas, con fondos sólidos, degradados y patrones tipográficos.']
+      ['Dieciséis tipografías', 'Google Fonts seleccionadas, con fondos sólidos, degradados y patrones tipográficos.']
     ],
     howTitle: 'Cómo funciona',
     how: [
       ['Elige una cita', 'Explora la biblioteca por ambiente (calma, serio o caótico) o escribe tu propio texto.'],
       ['Dale estilo', 'Ajusta tipografía, composición, fondo y tinta. El contraste automático elige una tinta legible.'],
-      ['Descarga', 'Exporta un PNG en la resolución exacta que necesites. Sin cuenta y sin marca de agua.']
+      ['Descarga', 'Exporta un PNG en la resolución exacta que necesites. Sin cuenta y sin extras: solo un crédito discreto, el logo en una esquina y la URL en la otra.']
     ],
     libraryTitle: 'Biblioteca de citas',
     libraryText: (n) =>
@@ -590,12 +591,13 @@ const COPY = {
     aboutTitle: 'Acerca de Plaintext',
     aboutText: [
       'Plaintext es una herramienta gratuita de un solo propósito: convertir palabras en wallpapers tipográficos. Nace para quien disfruta de la tipografía y sigue la idea de que menos es más: sin plantillas, sin pegatinas y sin efectos.',
-      'Todo se renderiza en tu navegador sobre un canvas. Tu texto nunca sale de tu dispositivo, no hay nada que registrar y las exportaciones no llevan marca de agua.'
+      'Todo se renderiza en tu navegador sobre un canvas. Tu texto nunca sale de tu dispositivo, no hay nada que registrar y cada exportación lleva un crédito discreto: la marca de Plaintext en una esquina y la URL del sitio en la otra.'
     ],
     aboutCta: 'Más sobre Plaintext',
     faqTitle: 'Preguntas frecuentes',
     faq: [
-      ['¿Plaintext es gratis?', 'Sí. El generador, la biblioteca de citas y todas las exportaciones son gratuitos, sin cuenta y sin marca de agua.'],
+      ['¿Plaintext es gratis?', 'Sí. El generador, la biblioteca de citas y todas las exportaciones son gratuitos, sin cuenta y sin subidas.'],
+      ['¿Qué es la marca que aparece en la exportación?', 'Un único crédito discreto: el logo de Plaintext en la esquina inferior derecha y mendiak.github.io/plaintext en la inferior izquierda. Ninguno tapa la composición.'],
       ['¿Hay que instalar algo?', 'No. Funciona en el navegador, tanto en escritorio como en móvil.'],
       ['¿Puedo usar los wallpapers comercialmente?', 'Las citas son de dominio público o atribuciones breves y las tipografías son Google Fonts con licencias abiertas. Las imágenes generadas son tuyas.'],
       ['¿Plaintext guarda mi texto?', 'No. El renderizado ocurre en local sobre un canvas, así que tu texto nunca se envía a un servidor.'],

@@ -17,23 +17,23 @@ Plaintext is a minimalist web app for lovers of typography and literature. It co
 
 Everything runs in the browser: no framework, no build step, no runtime dependencies.
 
-- **222 curated quotes** across 3 vibes — Calm (67), Serious (99), Chaotic (56) — in **English and Spanish** (202 unique lines)
-- **10 typefaces** picked for weight and character
+- **238 curated quotes** across 3 vibes — Calm (72), Serious (107), Chaotic (59) — in **English and Spanish** (218 unique lines)
+- **16 typefaces** picked for weight and character
 - **3 layouts**, 8 paper colors plus auto-contrast ink
 - **7 export formats**, from mobile to 4K
 
 ## Features
 
-- **Curated quotes**: 222 hand-picked lines in both English and Spanish, tagged by vibe.
+- **Curated quotes**: 238 hand-picked lines in both English and Spanish, tagged by vibe.
 - **Custom quotes**: type your own text and get a personalized poster.
 - **Typography focus**: 10 Google Fonts chosen for their professional weight and character.
-- **Pattern backgrounds**: subtle typographic overlays that blend massive letters into the background using gradient fills and ultra-low opacity.
+- **Backgrounds & patterns**: solid paper tones or five gradient families, with optional typographic, grid, dot, diagonal or halftone overlays.
 - **Ink control**: automatic contrast selection or manual override (ghost white, steel grey, deep black).
 - **Flexible layouts**: Editorial (Swiss-style), Ruled (grid-based) or Offset (asymmetric).
 - **Bilingual**: instant toggle between English and Spanish, including the static pages.
 - **Zen mode** (`Z`): hide the UI and focus entirely on the composition.
 - **Dark mode**: a sleek, dark interface for comfortable creative sessions.
-- **Export everywhere**: desktop, 2K, 4K, ultrawide, mobile, Instagram and OG/Twitter PNGs, watermarked with `mendiak.github.io/plaintext`.
+- **Export everywhere**: desktop, 2K, 4K, ultrawide, mobile, Instagram and OG/Twitter PNGs, each with a discreet credit — the logo in one corner and `mendiak.github.io/plaintext` in the other.
 
 ## Keyboard shortcuts
 
@@ -51,8 +51,8 @@ The app is built for speed:
 
 ## Backgrounds & styles
 
-- **Color palettes**: curated solids (White, Cream, Ivory, Sand, Clay, Slate, Charcoal, Black) or vibrant gradients derived from the quote's vibe.
-- **Pattern overlay**: a typographic texture made of the quote's own letters — oversized, rotated, filled with the vibe accent at ultra-low opacity. Designed to extend to geometric and mesh patterns.
+- **Color palettes**: curated solids (White, Cream, Ivory, Sand, Clay, Slate, Charcoal, Black) or eight fixed gradients (Paper, Sky, Mint, Blush, Sand, Stone, Night, Forest), plus Auto (by vibe). The Random action recomposes the selected gradient with a new orientation and stop distribution, using the same palette. Every swatch always renders the exact gradient the canvas will use.
+- **Pattern overlays**: typographic (the quote's own letters, oversized and rotated), grid, dots, diagonal lines or halftone. Deterministic per quote, so a wallpaper always renders the same way.
 - **Ink**: auto-contrast or manual override, in four tones.
 - **Formats**: 1920×1080, 2560×1440, 3840×2160, 3440×1440 (ultrawide), 1080×1920 (mobile), 1080×1080 (Instagram) and 1200×630 (OG/Twitter).
 
@@ -96,7 +96,7 @@ node generate.js   # Node 20+
 │   ├── canvas.js         # Draw helpers
 │   ├── random.js         # Seeded-ish random utilities
 │   └── styles.js         # Typefaces, layouts, palettes, gradients
-├── data/quotes.json      # 222 quotes (text, text_es, author, vibe)
+├── data/quotes.json      # 238 quotes (text, text_es, author, vibe)
 ├── generate.js           # Static page / sitemap generator
 ├── assets/               # Preview and OG images, shared quote CSS
 ├── quote/ · es/quote/    # Generated quote pages (do not edit by hand)
@@ -110,7 +110,7 @@ node generate.js   # Node 20+
 
 Every unique quote is published as an indexable, bilingual page with canonical URLs, `hreflang` alternates, Open Graph and JSON-LD metadata:
 
-- `/quote/<slug>/` and `/es/quote/<slug>/` — one page per unique quote (202 per language)
+- `/quote/<slug>/` and `/es/quote/<slug>/` — one page per unique quote (218 per language)
 - `/quotes/` and `/es/quotes/` — browsable indexes
 - `/about/` and `/es/about/` — about pages
 - `/es/` — Spanish home
