@@ -688,41 +688,54 @@ kbd {
   margin-top: auto;
 }
 
-.sidebar__credits {
-  font-size: 0.65rem;
-  color: var(--text-sub);
-  letter-spacing: 0.02em;
-  padding-bottom: 1.5rem; /* space for ? button */
+/* ── Site footer ───────────────────────────────────── */
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg-app);
+  padding: 36px 24px 48px;
 }
 
-.sidebar__credits a {
+.site-footer__inner {
+  max-width: 940px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px 32px;
+  font-size: 0.7rem;
+  color: var(--text-sub);
+}
+
+.site-footer__note { letter-spacing: 0.02em; }
+
+.site-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.site-footer a {
   color: var(--text-sub);
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: all 0.15s;
 }
 
-.sidebar__credits a:hover {
+.site-footer a:hover {
   color: var(--text-primary);
   border-bottom-color: var(--text-primary);
 }
 
-.sidebar__bmc {
-  margin-top: 0.8rem;
+.site-footer__bmc {
   min-height: 34px; /* reserve space so the injected button does not shift the layout */
-  opacity: 0.7;
+  opacity: 0.75;
   transition: opacity 0.2s;
-  transform: scale(0.8);
+  transform: scale(0.85);
   transform-origin: left center;
 }
 
-.sidebar__bmc:hover {
-  opacity: 1;
-}
-
-.sidebar__credits .header__dot {
-  margin: 0 0.15rem;
-}
+.site-footer__bmc:hover { opacity: 1; }
 
 /* ── Btn group ─────────────────────────────────────── */
 .btn-group {

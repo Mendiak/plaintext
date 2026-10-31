@@ -24,7 +24,6 @@ const fs = require('fs');
 const path = require('path');
 
 const SITE = 'https://mendiak.github.io/plaintext';
-const BASE_PATH = '/plaintext/';
 const ROOT = __dirname;
 const GA_ID = 'G-0FZ0TYV77N';
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -96,13 +95,13 @@ const T = {
   es: {
     lang: 'es',
     brand: 'Plaintext',
-    tagline: 'Carteles tipográficos a partir de citas',
+    tagline: 'Wallpapers tipográficos a partir de citas',
     navQuotes: 'Citas',
     navAbout: 'Acerca de',
     navApp: 'Abrir el generador',
     home: 'Inicio',
     quoteLead: (text) =>
-      `«${text}» como wallpaper tipográfico minimalista. Genera esta cita como cartel para escritorio, móvil, Instagram u OG/Twitter: elige tipografía, composición y fondo, y descarga un PNG en alta resolución.`,
+      `«${text}» como wallpaper tipográfico minimalista. Genera esta cita como wallpaper para escritorio, móvil, Instagram u OG/Twitter: elige tipografía, composición y fondo, y descarga un PNG en alta resolución.`,
     cta: 'Crear este wallpaper',
     ctaNote: 'Abre el generador con esta cita ya cargada. Gratis, sin registro y sin marca de agua.',
     otherLang: 'Read this quote in English',
@@ -114,7 +113,7 @@ const T = {
       `${n} citas seleccionadas sobre diseño, simplicidad, tecnología y oficio. Todas listas para convertirse en un wallpaper tipográfico minimalista.`,
     aboutTitle: 'Acerca de Plaintext',
     aboutLead:
-      'Plaintext es una herramienta pequeña y gratuita para convertir palabras en carteles tipográficos. Sin cuentas, sin subidas y sin rastrear tu texto: todo se renderiza en tu navegador.',
+      'Plaintext es una herramienta pequeña y gratuita para convertir palabras en wallpapers tipográficos. Sin cuentas, sin subidas y sin rastrear tu texto: todo se renderiza en tu navegador.',
     backHome: 'Volver a Plaintext'
   }
 };
@@ -346,7 +345,7 @@ function quoteIndexPage(lang) {
   const altEn = `${SITE}/quotes/`;
   const altEs = `${SITE}/es/quotes/`;
   const title = lang === 'es'
-    ? `Biblioteca de citas · ${quotes.length} citas para carteles tipográficos`
+    ? `Biblioteca de citas · ${quotes.length} citas para wallpapers tipográficos`
     : `Quote library · ${quotes.length} quotes for typographic posters`;
   const description = t.quoteIndexLead(quotes.length);
 
@@ -411,7 +410,7 @@ function aboutPage(lang) {
 
   const body = lang === 'es' ? `
     <h2>Qué es</h2>
-    <p>Plaintext convierte una frase en un cartel tipográfico. Tomas una cita de la biblioteca o escribes la tuya, eliges tipografía, composición y fondo, y descargas un PNG en la resolución que necesites.</p>
+    <p>Plaintext convierte una frase en un wallpaper tipográfico. Tomas una cita de la biblioteca o escribes la tuya, eliges tipografía, composición y fondo, y descargas un PNG en la resolución que necesites.</p>
     <p>La idea es deliberadamente estrecha: no es un editor gráfico. Es una herramienta que hace una sola cosa, con la tipografía como único material.</p>
 
     <h2>Cómo funciona</h2>
@@ -556,7 +555,7 @@ const COPY = {
     eyebrow: 'Plaintext · La tipografía como arte',
     h1: 'Generador de wallpapers tipográficos',
     lead:
-      'Plaintext convierte una cita en un cartel tipográfico minimalista. Elige entre más de 200 frases seleccionadas, ajusta tipografía, composición y fondo, y descarga un wallpaper en alta resolución para escritorio, móvil, Instagram o previsualizaciones sociales.',
+      'Plaintext convierte una cita en un wallpaper tipográfico minimalista. Elige entre más de 200 frases seleccionadas, ajusta tipografía, composición y fondo, y descarga un wallpaper en alta resolución para escritorio, móvil, Instagram o previsualizaciones sociales.',
     featuresTitle: 'Qué puedes crear',
     features: [
       ['Wallpapers de escritorio', 'Exportaciones en 1920 × 1080, 2K, 4K y ultrawide, renderizadas a resolución nativa.'],
@@ -579,7 +578,7 @@ const COPY = {
     popularTitle: 'Citas populares',
     aboutTitle: 'Acerca de Plaintext',
     aboutText: [
-      'Plaintext es una herramienta gratuita de un solo propósito: convertir palabras en carteles tipográficos. Nace para quien disfruta de la tipografía y sigue la idea de que menos es más: sin plantillas, sin pegatinas y sin efectos.',
+      'Plaintext es una herramienta gratuita de un solo propósito: convertir palabras en wallpapers tipográficos. Nace para quien disfruta de la tipografía y sigue la idea de que menos es más: sin plantillas, sin pegatinas y sin efectos.',
       'Todo se renderiza en tu navegador sobre un canvas. Tu texto nunca sale de tu dispositivo, no hay nada que registrar y las exportaciones no llevan marca de agua.'
     ],
     aboutCta: 'Más sobre Plaintext',
@@ -771,12 +770,23 @@ es = replaceBetween(es, '<!-- EDITORIAL:START -->', '<!-- EDITORIAL:END -->', ed
 es = es.replace('<html lang="en"', '<html lang="es"');
 es = es.replace(
   '<meta name="viewport" content="width=device-width, initial-scale=1.0" />',
-  '<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n  <meta name="pt-lang" content="es" />\n  <meta name="pt-base" content="' + BASE_PATH + '" />'
+  '<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n  <meta name="pt-lang" content="es" />'
 );
 es = es
   .replace('href="style.css"', 'href="../style.css"')
   .replace('src="main.js"', 'src="../main.js"')
   .replace('href="favicon.png"', 'href="../favicon.png"');
+
+// Footer is shared markup: flip the language link and the credit label for ES.
+const esFooterChecks = [
+  ['<a href="./es/" hreflang="es" lang="es">Español</a>', '<a href="../" hreflang="en" lang="en">English</a>'],
+  ['<span id="credit-text">by</span>', '<span id="credit-text">por</span>']
+];
+for (const [from, to] of esFooterChecks) {
+  if (!es.includes(from)) throw new Error(`Footer marker missing in index.html: ${from}`);
+  es = es.replace(from, to);
+}
+
 write('es/index.html', es);
 
 /* ── sitemap + robots ────────────────────────────────── */

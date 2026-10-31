@@ -7,8 +7,9 @@ import { renderWallpaper } from './utils/canvas.js';
 ────────────────────────────────────────────────────────── */
 const META = (name) => document.querySelector(`meta[name="${name}"]`)?.content || null;
 
-// Pages generated under /es/ declare their base so relative fetches keep working.
-const BASE = META('pt-base') || './';
+// Base URL derived from this module, so it works at /plaintext/ on GitHub Pages
+// and at / when served locally (Live Server, http.server, etc.).
+const BASE = new URL('.', import.meta.url).href;
 
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const FORCED_LANG = META('pt-lang');
@@ -178,7 +179,7 @@ const translations = {
       muted: "Gris Acero"
     },
     developedBy: "por",
-    headerSub: "Carteles tipográficos a partir de citas"
+    headerSub: "Wallpapers tipográficos a partir de citas"
   }
 };
 
