@@ -58,7 +58,18 @@ const write = (rel, html) => {
   fs.writeFileSync(file, html, 'utf8');
 };
 
-const rmDir = (rel) => fs.rmSync(path.join(ROOT, rel), { recursive: true, force: true });
+const rmDir = (rel) => {
+  const dir = path.join(ROOT, rel);
+  if (!fs.existsSync(dir)) return;
+  try {
+    fs.rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 150 });
+  } catch (err) {
+    // Windows can briefly lock files that a browser or editor has open.
+    throw new Error(
+      `Could not clear ${rel}/ (${err.code}). Close the page or editor holding it and run again.`
+    );
+  }
+};
 
 /* ── content ─────────────────────────────────────────── */
 
