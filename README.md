@@ -1,65 +1,124 @@
 # Plaintext
 
-**Typography-driven wallpaper generator.** Create beautiful, minimal posters from curated quotes or your own words.
+**Typography-driven wallpaper generator.** Turn curated quotes — or your own words — into minimal, Swiss-inspired posters.
 
-![Plaintext Preview](./assets/preview.png)
+[![Live Demo](https://img.shields.io/badge/live-demo-000000?style=flat-square)](https://mendiak.github.io/plaintext/)
+[![Build SEO pages](https://github.com/Mendiak/plaintext/actions/workflows/seo.yml/badge.svg)](https://github.com/Mendiak/plaintext/actions/workflows/seo.yml)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-000000?style=flat-square)](./LICENSE)
+[![No dependencies](https://img.shields.io/badge/runtime%20deps-0-000000?style=flat-square)](./main.js)
+
+![Plaintext preview](./assets/preview.png)
+
+**[→ Open Plaintext](https://mendiak.github.io/plaintext/)** · [Español](https://mendiak.github.io/plaintext/es/)
 
 ## Overview
 
-Plaintext is a minimalist web application designed for lovers of typography and literature. It transforms curated quotes into high-quality posters and wallpapers using professional layouts inspired by Swiss design and modernist principles. Supports desktop, mobile, Instagram, and OG/Twitter formats.
+Plaintext is a minimalist web app for lovers of typography and literature. It composes quotes into high-quality posters and wallpapers using layouts inspired by Swiss design and modernist principles, and exports them ready for desktop, mobile, Instagram and social previews.
+
+Everything runs in the browser: no framework, no build step, no runtime dependencies.
+
+- **222 curated quotes** across 3 vibes — Calm (67), Serious (99), Chaotic (56) — in **English and Spanish** (202 unique lines)
+- **10 typefaces** picked for weight and character
+- **3 layouts**, 8 paper colors plus auto-contrast ink
+- **7 export formats**, from mobile to 4K
 
 ## Features
 
-- **Curated Quotes**: Over 100 hand-picked quotes across 3 vibes (Calm, Chaotic, Serious) in both English and Spanish.
-- **Custom Quotes**: Enter your own text to create personalized typographic posters.
-- **Typography Focus**: 10 Google Fonts selected for their professional weight and character.
-- **Pattern Backgrounds**: Subtle typographic overlays that blend massive letters into the background using gradient fills and ultra-low opacity.
-- **Zen Mode (Z)**: Hide the UI to focus entirely on the composition.
-- **Dark Mode**: A sleek, dark interface for a comfortable creative experience.
-- **Bilingual Support**: Instant toggle between English and Spanish.
-- **Flexible Layouts**: Choose between Editorial (Swiss-style), Ruled (Grid-based), or Offset (Asymmetric) compositions.
-- **Social Resolutions**: Export for Instagram (1080×1080) or OG/Twitter (1200×630) in addition to desktop and mobile.
-- **Export Everywhere**: Download high-resolution PNGs for any format. Filenames and watermarks include `mendiak.github.io/plaintext` for easy reference.
+- **Curated quotes**: 222 hand-picked lines in both English and Spanish, tagged by vibe.
+- **Custom quotes**: type your own text and get a personalized poster.
+- **Typography focus**: 10 Google Fonts chosen for their professional weight and character.
+- **Pattern backgrounds**: subtle typographic overlays that blend massive letters into the background using gradient fills and ultra-low opacity.
+- **Ink control**: automatic contrast selection or manual override (ghost white, steel grey, deep black).
+- **Flexible layouts**: Editorial (Swiss-style), Ruled (grid-based) or Offset (asymmetric).
+- **Bilingual**: instant toggle between English and Spanish, including the static pages.
+- **Zen mode** (`Z`): hide the UI and focus entirely on the composition.
+- **Dark mode**: a sleek, dark interface for comfortable creative sessions.
+- **Export everywhere**: desktop, 2K, 4K, ultrawide, mobile, Instagram and OG/Twitter PNGs, watermarked with `mendiak.github.io/plaintext`.
 
-## Keyboard Shortcuts
+## Keyboard shortcuts
 
 The app is built for speed:
-- `Space`: Generate a new quote
-- `S`: Shuffle all styles (Font, Layout, Background, Pattern)
-- `D`: Download wallpaper
-- `Z`: Toggle Zen Mode
-- `1`, `2`, `3`: Switch layouts
-- `?`: Toggle shortcuts panel
-- `Esc`: Exit Zen mode or close panels
 
-## Background & Styles
+| Key | Action |
+| --- | --- |
+| `Space` | Generate a new quote |
+| `S` | Shuffle all styles (typeface, layout, background, pattern) |
+| `D` | Download the wallpaper |
+| `Z` | Toggle Zen mode |
+| `1` `2` `3` | Switch layouts |
+| `?` | Toggle the shortcuts panel |
+| `Esc` | Exit Zen mode or close panels |
 
-- **Color Palettes**: Curated solid backgrounds (Clay, Slate, Charcoal, etc.) or dynamic gradients based on the quote's vibe.
-- **Pattern Overlays**: Typographic pattern — massive, rotated letters from the quote filled with the vibe's accent color at ultra-low opacity, creating an atmospheric texture behind the text. Expandable to geometric and mesh styles.
-- **Ink Control**: Auto-contrast selection or manual override (Ghost White, Steel Grey, Deep Black).
-- **Proportions**: Optimized for Desktop (1920×1080), Mobile (1080×1920), Instagram (1080×1080), and OG/Twitter (1200×630).
+## Backgrounds & styles
 
-## Technologies
+- **Color palettes**: curated solids (White, Cream, Ivory, Sand, Clay, Slate, Charcoal, Black) or vibrant gradients derived from the quote's vibe.
+- **Pattern overlay**: a typographic texture made of the quote's own letters — oversized, rotated, filled with the vibe accent at ultra-low opacity. Designed to extend to geometric and mesh patterns.
+- **Ink**: auto-contrast or manual override, in four tones.
+- **Formats**: 1920×1080, 2560×1440, 3840×2160, 3440×1440 (ultrawide), 1080×1920 (mobile), 1080×1080 (Instagram) and 1200×630 (OG/Twitter).
 
-- **HTML5 Canvas**: Native rendering for sharp typography and pattern overlays.
-- **Vanilla JavaScript**: Pure ES6 modules, zero dependencies.
-- **CSS3**: Fluid layouts using CSS Grid and Flexbox with a minimalist aesthetic.
+## Tech
 
-## Static pages
+- **HTML5 Canvas** — native rendering for sharp typography and pattern overlays.
+- **Vanilla JavaScript** — ES modules, zero dependencies.
+- **CSS3** — fluid layout with Grid and Flexbox, no framework.
+- **GitHub Pages** — static hosting straight from `main`.
 
-The quote library is also published as static, indexable pages. `generate.js` reads `data/quotes.json` and builds:
+## Getting started
 
-- `quote/<slug>/` and `es/quote/<slug>/` for every unique quote
-- `quotes/` and `es/quotes/` indexes
-- `about/` and `es/about/`
-- `es/` (Spanish home)
-- `sitemap.xml` and `robots.txt`
+The app itself is static, so any HTTP server works:
 
-Run `node generate.js` after changing the quotes. The `Build SEO pages` workflow regenerates and commits these files on every push to `main`.
+```bash
+git clone https://github.com/Mendiak/plaintext.git
+cd plaintext
+python -m http.server 8000   # or: npx serve .
+```
+
+Then open <http://localhost:8000>. Opening `index.html` directly from disk will not work, because the app uses ES modules.
+
+### Regenerating the static pages
+
+The indexable quote pages are generated from `data/quotes.json`:
+
+```bash
+node generate.js   # Node 20+
+```
+
+`generate.js` writes `quote/<slug>/`, `es/quote/<slug>/`, the `quotes/` indexes, the About pages, `es/`, `sitemap.xml` and `robots.txt`. CI runs it on every push to `main` and commits the result, so usually you do not need to run it by hand.
+
+## Project structure
+
+```text
+.
+├── index.html            # App shell (EN)
+├── main.js               # App logic: rendering, state, keyboard, export
+├── style.css             # UI styles
+├── utils/
+│   ├── canvas.js         # Draw helpers
+│   ├── random.js         # Seeded-ish random utilities
+│   └── styles.js         # Typefaces, layouts, palettes, gradients
+├── data/quotes.json      # 222 quotes (text, text_es, author, vibe)
+├── generate.js           # Static page / sitemap generator
+├── assets/               # Preview and OG images, shared quote CSS
+├── quote/ · es/quote/    # Generated quote pages (do not edit by hand)
+├── quotes/ · es/quotes/  # Generated indexes
+├── about/ · es/about/    # Generated About pages
+├── es/                   # Spanish home
+└── .github/workflows/    # CI that regenerates the SEO pages
+```
+
+## Static pages & SEO
+
+Every unique quote is published as an indexable, bilingual page with canonical URLs, `hreflang` alternates, Open Graph and JSON-LD metadata:
+
+- `/quote/<slug>/` and `/es/quote/<slug>/` — one page per unique quote (202 per language)
+- `/quotes/` and `/es/quotes/` — browsable indexes
+- `/about/` and `/es/about/` — about pages
+- `/es/` — Spanish home
+- `/sitemap.xml` and `/robots.txt` — generated from the same source
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+GNU General Public License v3.0 — see [LICENSE](./LICENSE) for details.
 
 ---
 
