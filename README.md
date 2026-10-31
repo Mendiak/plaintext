@@ -45,6 +45,18 @@ The app is built for speed:
 - **Vanilla JavaScript**: Pure ES6 modules, zero dependencies.
 - **CSS3**: Fluid layouts using CSS Grid and Flexbox with a minimalist aesthetic.
 
+## Static pages
+
+The quote library is also published as static, indexable pages. `generate.js` reads `data/quotes.json` and builds:
+
+- `quote/<slug>/` and `es/quote/<slug>/` for every unique quote
+- `quotes/` and `es/quotes/` indexes
+- `about/` and `es/about/`
+- `es/` (Spanish home)
+- `sitemap.xml` and `robots.txt`
+
+Run `node generate.js` after changing the quotes. The `Build SEO pages` workflow regenerates and commits these files on every push to `main`.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.

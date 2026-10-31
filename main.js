@@ -3,6 +3,32 @@ import { FONTS, FONT_FAMILIES, getGradient, getLayout, INK_COLORS, checkIsDark, 
 import { renderWallpaper } from './utils/canvas.js';
 
 /* ──────────────────────────────────────────────────────
+   SEO / ANALYTICS HELPERS
+────────────────────────────────────────────────────────── */
+const META = (name) => document.querySelector(`meta[name="${name}"]`)?.content || null;
+
+// Pages generated under /es/ declare their base so relative fetches keep working.
+const BASE = META('pt-base') || './';
+
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const FORCED_LANG = META('pt-lang');
+
+function track(name, params = {}) {
+  if (typeof window.gtag === 'function') window.gtag('event', name, params);
+}
+
+// Must stay in sync with slugify() in generate.js so quote pages deep-link correctly.
+function slugify(value) {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[’'`"“”‘]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/* ──────────────────────────────────────────────────────
    TRANSLATIONS
 ────────────────────────────────────────────────────────── */
 const translations = {
@@ -77,7 +103,8 @@ const translations = {
       light: "Ghost White",
       muted: "Steel Grey"
     },
-    developedBy: "by"
+    developedBy: "by",
+    headerSub: "Quote-driven typographic posters"
   },
   es: {
     resolution: "Resolución",
@@ -150,7 +177,8 @@ const translations = {
       light: "Blanco Fantasma",
       muted: "Gris Acero"
     },
-    developedBy: "por"
+    developedBy: "por",
+    headerSub: "Carteles tipográficos a partir de citas"
   }
 };
 
@@ -162,6 +190,7 @@ function updateUI() {
   document.documentElement.lang = currentLang;
 
   // Labels
+  document.querySelector('.header__sub').textContent = t.headerSub;
   document.querySelector('label[for="resolution-select"]').textContent = t.resolution;
   document.querySelector('label[for="font-select"]').textContent = t.typeface;
   document.querySelector('label[for="layout-select"]').textContent = t.layout;
@@ -269,10 +298,13 @@ let currentGradient = null;
 let currentFont     = FONTS[0];
 let currentLayout   = 'editorial';
 let currentRes      = RESOLUTIONS.desktop;
+let currentResKey   = 'desktop';
 let currentBgType   = 'solid';
 let currentBgValue  = 'white';
 let currentInk      = 'auto';
-let currentLang     = (navigator.language || navigator.userLanguage).startsWith('es') ? 'es' : 'en';
+let currentLang     = FORCED_LANG
+  || URL_PARAMS.get('lang')
+  || 'en';
 let currentVibeFilter = 'all';
 let isZen           = false;
 let isDark          = false;
@@ -430,6 +462,7 @@ function copyQuote() {
     const card = document.getElementById('quote-card');
     card.classList.add('quote-card--copied');
     setTimeout(() => card.classList.remove('quote-card--copied'), 900);
+    track('quote_copied');
   }).catch(() => {});
 }
 
@@ -442,9 +475,14 @@ async function init() {
     const savedDark = localStorage.getItem('plaintext-dark');
     if (savedDark === '1') applyDarkMode(true);
 
-    const res = await fetch('./data/quotes.json');
+    const res = await fetch(`${BASE}data/quotes.json`);
     allQuotes = await res.json();
     quotes    = allQuotes;
+
+    // Deep link from generated quote pages: /?q=less-is-more
+    const bySlug = new Map(allQuotes.map(q => [slugify(q.text), q]));
+    const deepLinkSlug = URL_PARAMS.get('q');
+    const deepLinkQuote = deepLinkSlug ? bySlug.get(deepLinkSlug) : null;
 
     const generateBtn   = document.getElementById('btn-generate');
     const shuffleBtn    = document.getElementById('btn-shuffle');
@@ -475,6 +513,7 @@ async function init() {
 
     // Initialize custom dropdowns
     const resolutionDropdown = createDropdown('resolution', null, 'desktop', (value) => {
+      currentResKey = value;
       currentRes = RESOLUTIONS[value] ?? RESOLUTIONS.desktop;
       draw();
     });
@@ -568,13 +607,13 @@ async function init() {
       return true;
     };
 
-    const generate = (randomizeStyles = false) => {
+    const generate = (randomizeStyles = false, forcedQuote = null) => {
       // If custom quote has content, use it; otherwise pick from pool
       const hasCustom = customQuoteEl.value.trim().length > 0;
 
       if (!hasCustom) {
         if (!quotes.length) return;
-        currentQuote = getRandomItem(quotes);
+        currentQuote = forcedQuote || getRandomItem(quotes);
       }
 
       if (randomizeStyles) {
@@ -624,6 +663,11 @@ async function init() {
         applyCustomQuote();
       }
 
+      track('quote_generated', {
+        vibe: currentQuote?.vibe || 'custom',
+        source: forcedQuote ? 'deeplink' : (hasCustom ? 'custom' : (randomizeStyles ? 'shuffle' : 'random'))
+      });
+
       draw();
     };
 
@@ -639,6 +683,12 @@ async function init() {
       a.download = `mendiak.github.io-plaintext-${authorSlug}.png`;
       a.href = canvas.toDataURL('image/png');
       a.click();
+      track('wallpaper_download', {
+        resolution: currentResKey,
+        font: currentFont.id,
+        layout: currentLayout,
+        vibe: currentQuote.vibe || 'custom'
+      });
     });
 
     // Tab switching
@@ -681,29 +731,19 @@ async function init() {
       draw();
     });
 
-    // Language toggle
+    // Language toggle — navigates to the matching indexed URL so hreflang stays honest
     langEn.addEventListener('click', () => {
       if (currentLang === 'en') return;
-      currentLang = 'en';
-      langEn.classList.add('lang-btn--active');
-      langEs.classList.remove('lang-btn--active');
-      updateUI();
-      if (currentQuote) {
-        quoteEl.textContent = `"${currentQuote.text}"`;
-        draw();
-      }
+      track('language_switch', { to: 'en', from: currentLang });
+      const q = currentQuote ? `?q=${encodeURIComponent(slugify(currentQuote.text))}` : '';
+      window.location.href = `${BASE}${q}`;
     });
 
     langEs.addEventListener('click', () => {
       if (currentLang === 'es') return;
-      currentLang = 'es';
-      langEs.classList.add('lang-btn--active');
-      langEn.classList.remove('lang-btn--active');
-      updateUI();
-      if (currentQuote) {
-        quoteEl.textContent = `"${currentQuote.text_es || currentQuote.text}"`;
-        draw();
-      }
+      track('language_switch', { to: 'es', from: currentLang });
+      const q = currentQuote ? `?q=${encodeURIComponent(slugify(currentQuote.text))}` : '';
+      window.location.href = `${BASE}es/${q}`;
     });
 
     // Dark mode
@@ -819,7 +859,7 @@ async function init() {
     }
 
     updateUI();
-    generate(false);
+    generate(false, deepLinkQuote);
 
   } catch (err) {
     console.error('Init failed:', err);

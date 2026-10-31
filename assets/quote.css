@@ -1,0 +1,288 @@
+/* ── Plaintext static pages ─────────────────────────────
+   Shared styles for quote pages, indexes and the about page.
+   Kept dependency-free and in the same visual language as the app.
+   ─────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #f8f7f4;
+  --surface:   #ffffff;
+  --ink:       #1a1916;
+  --ink-sub:   #5a5854;
+  --ink-faint: #9a9790;
+  --rule:      #e2dfd8;
+  --accent:    #1a1916;
+  --max:       720px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:        #111110;
+    --surface:   #171614;
+    --ink:       #e8e6e1;
+    --ink-sub:   #a09d97;
+    --ink-faint: #8f8c85;
+    --rule:      #2a2926;
+    --accent:    #e8e6e1;
+  }
+}
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+  background: var(--rule);
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+
+.site-head {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.site-head__brand {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.site-head__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 20px;
+  font-size: 0.78rem;
+  color: var(--ink-sub);
+}
+
+.site-head__nav a { text-decoration: none; }
+.site-head__nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+.site-head__lang {
+  border: 1px solid var(--rule);
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+}
+
+/* ── Quote page ─────────────────────────────────────── */
+
+.qp__main,
+.lp__main {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 72px 24px 96px;
+}
+
+.eyebrow {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-faint);
+  margin-bottom: 28px;
+}
+
+.qp__quote {
+  font-size: clamp(2rem, 6.2vw, 3.6rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.qp__quote::before { content: '“'; }
+.qp__quote::after  { content: '”'; }
+
+.qp__author {
+  margin-top: 22px;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-sub);
+}
+
+.qp__lead {
+  margin-top: 40px;
+  max-width: 58ch;
+  font-size: 1.02rem;
+  color: var(--ink-sub);
+}
+
+.qp__cta { margin-top: 32px; }
+
+.btn {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--bg);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 13px 22px;
+  border-radius: 2px;
+  transition: opacity 0.15s ease;
+}
+.btn:hover { opacity: 0.82; }
+
+.qp__note {
+  margin-top: 12px;
+  font-size: 0.76rem;
+  color: var(--ink-faint);
+  max-width: 46ch;
+}
+
+.qp__alt {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  font-size: 0.82rem;
+  color: var(--ink-sub);
+}
+
+.qp__alt a { text-underline-offset: 3px; }
+.qp__alt-text {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+/* ── Related ────────────────────────────────────────── */
+
+.related { margin-top: 64px; }
+
+.related h2,
+.qgroup h2 {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 500;
+  color: var(--ink-faint);
+  margin-bottom: 22px;
+}
+
+.related__list,
+.qlist {
+  list-style: none;
+  display: grid;
+  gap: 0;
+}
+
+.related__list li,
+.qlist li { border-top: 1px solid var(--rule); }
+
+.related__list a,
+.qlist a {
+  display: block;
+  padding: 16px 0;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.related__list a:hover,
+.qlist a:hover { opacity: 0.6; }
+
+.rel__text { display: block; font-size: 0.95rem; line-height: 1.35; }
+.rel__author,
+.ql__author {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+
+.related__all,
+.lp__back { margin-top: 26px; font-size: 0.84rem; }
+.related__all a,
+.lp__back a,
+.lp__main a { text-underline-offset: 3px; }
+
+/* ── Index / about ──────────────────────────────────── */
+
+.lp__main h1 {
+  font-size: clamp(1.9rem, 5vw, 2.9rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.lp__lead {
+  margin-top: 22px;
+  font-size: 1.02rem;
+  color: var(--ink-sub);
+  max-width: 58ch;
+}
+
+.lp__main h2 {
+  margin-top: 52px;
+  margin-bottom: 14px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 500;
+  color: var(--ink-faint);
+}
+
+.lp__main p { margin-top: 14px; max-width: 62ch; }
+.lp__main p:first-of-type { margin-top: 0; }
+
+.lp__main ul:not(.qlist) {
+  margin-top: 14px;
+  padding-left: 18px;
+  max-width: 62ch;
+}
+.lp__main ul:not(.qlist) li { margin-top: 6px; }
+
+.qgroup { margin-top: 40px; }
+.qlist .ql__text { font-size: 0.95rem; line-height: 1.35; }
+
+/* ── Footer ─────────────────────────────────────────── */
+
+.site-foot {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.76rem;
+  color: var(--ink-faint);
+}
+
+.site-foot__links { display: flex; flex-wrap: wrap; gap: 18px; }
+.site-foot__links a { text-decoration: none; }
+.site-foot__links a:hover { color: var(--ink); }
+
+@media (max-width: 560px) {
+  .qp__main, .lp__main { padding-top: 48px; }
+  .site-head { flex-wrap: wrap; }
+  .site-head__nav { gap: 14px; }
+}
