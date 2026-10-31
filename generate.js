@@ -791,7 +791,9 @@ es = es
 // Footer is shared markup: flip the language link and the credit label for ES.
 const esFooterChecks = [
   ['<a href="./es/" hreflang="es" lang="es">Español</a>', '<a href="../" hreflang="en" lang="en">English</a>'],
-  ['<span id="credit-text">by</span>', '<span id="credit-text">por</span>']
+  ['<span id="credit-text">by</span>', '<span id="credit-text">por</span>'],
+  ['<a href="./quotes/">Quotes</a>', '<a href="./quotes/">Citas</a>'],
+  ['<a href="./about/">About</a>', '<a href="./about/">Acerca de</a>']
 ];
 for (const [from, to] of esFooterChecks) {
   if (!es.includes(from)) throw new Error(`Footer marker missing in index.html: ${from}`);

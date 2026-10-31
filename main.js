@@ -52,7 +52,7 @@ const translations = {
     customQuotePlaceholder: "Type your own quote…",
     customAuthorPlaceholder: "Author (optional)",
     pressGenerate: "Press Generate to create a wallpaper.",
-    footer: (n, vibes, fonts, patterns) => `${n} quotes · ${vibes} vibes · ${fonts} typefaces · ${patterns} patterns`,
+    footer: (n, vibes, fonts, patterns) => `${n} quotes · ${vibes} vibes · ${fonts} typefaces · ${patterns} ${patterns === 1 ? 'pattern' : 'patterns'}`,
     copied: "Copied",
     shortcuts: "Shortcuts",
     resolutions: {
@@ -105,7 +105,8 @@ const translations = {
       muted: "Steel Grey"
     },
     developedBy: "by",
-    headerSub: "Quote-driven typographic posters"
+    headerSub: "Quote-driven typographic posters",
+    copyQuote: "Copy quote"
   },
   es: {
     resolution: "Resolución",
@@ -126,7 +127,7 @@ const translations = {
     customQuotePlaceholder: "Escribe tu propia cita…",
     customAuthorPlaceholder: "Autor (opcional)",
     pressGenerate: "Presiona Generar para crear un wallpaper.",
-    footer: (n, vibes, fonts, patterns) => `${n} citas · ${vibes} ambientes · ${fonts} tipografías · ${patterns} patrones`,
+    footer: (n, vibes, fonts, patterns) => `${n} citas · ${vibes} ambientes · ${fonts} tipografías · ${patterns} ${patterns === 1 ? 'patrón' : 'patrones'}`,
     copied: "Copiado",
     shortcuts: "Atajos",
     resolutions: {
@@ -179,7 +180,8 @@ const translations = {
       muted: "Gris Acero"
     },
     developedBy: "por",
-    headerSub: "Wallpapers tipográficos a partir de citas"
+    headerSub: "Wallpapers tipográficos a partir de citas",
+    copyQuote: "Copiar cita"
   }
 };
 
@@ -192,12 +194,13 @@ function updateUI() {
 
   // Labels
   document.querySelector('.header__sub').textContent = t.headerSub;
-  document.querySelector('label[for="resolution-select"]').textContent = t.resolution;
-  document.querySelector('label[for="font-select"]').textContent = t.typeface;
-  document.querySelector('label[for="layout-select"]').textContent = t.layout;
-  document.querySelector('label[for="ink-select"]').textContent = t.ink;
-  document.querySelector('label[for="custom-quote"]').textContent = t.customQuote;
+  document.querySelector('label[for="resolution-trigger"]').textContent = t.resolution;
+  document.querySelector('label[for="font-trigger"]').textContent = t.typeface;
+  document.querySelector('label[for="layout-trigger"]').textContent = t.layout;
+  document.querySelector('label[for="ink-trigger"]').textContent = t.ink;
+  document.getElementById('custom-quote-label').textContent = t.customQuote;
   document.getElementById('label-vibe-filter').textContent = t.vibeFilter;
+  document.getElementById('label-background').textContent = t.background;
 
   // Custom placeholders
   document.getElementById('custom-quote').placeholder = t.customQuotePlaceholder;
@@ -210,7 +213,9 @@ function updateUI() {
 
   // Buttons
   document.getElementById('btn-generate').textContent = t.nextQuote;
-  document.getElementById('btn-shuffle').textContent = t.shuffle;
+  const shuffleBtn = document.getElementById('btn-shuffle');
+  shuffleBtn.title = t.shuffle;
+  shuffleBtn.setAttribute('aria-label', t.shuffle);
   document.getElementById('btn-download').textContent = t.download;
 
   // Vibe filter buttons
@@ -219,14 +224,16 @@ function updateUI() {
   document.getElementById('vf-serious').textContent = t.vibes.serious;
   document.getElementById('vf-chaotic').textContent = t.vibes.chaotic;
 
-  // Meta labels
-  document.querySelector('.meta__row:nth-child(1) .label').textContent = t.vibe;
-  document.querySelector('.meta__row:nth-child(2) .label').textContent = t.layoutLabel;
-
-  // Quote preview
-  if (!currentQuote) {
-    document.getElementById('quote-preview').textContent = t.pressGenerate;
+  // Copy button
+  const copyBtn = document.getElementById('btn-copy');
+  if (copyBtn) {
+    copyBtn.title = t.copyQuote;
+    copyBtn.setAttribute('aria-label', t.copyQuote);
   }
+
+  // Custom quote fields (inside a collapsible group, so they need explicit labels)
+  document.getElementById('custom-quote').setAttribute('aria-label', t.customQuote);
+  document.getElementById('custom-author').setAttribute('aria-label', t.customAuthorPlaceholder);
 
   // Credits
   const creditTextEl = document.getElementById('credit-text');
@@ -261,8 +268,13 @@ function updateUI() {
   updateDropdownOptions('resolution-menu', resTexts);
   updateDropdownOptions('layout-menu', [t.layouts.editorial, t.layouts.ruled, t.layouts.offset]);
   
-  const solidTexts = Object.keys(t.backgrounds.solid).map(k => t.backgrounds.solid[k]);
-  updateDropdownOptions('solid-menu', solidTexts);
+  document.querySelectorAll('#solid-swatches .swatch').forEach((sw) => {
+    const name = t.backgrounds.solid[sw.dataset.value];
+    if (name) {
+      sw.title = name;
+      sw.setAttribute('aria-label', name);
+    }
+  });
   
   const gradientTexts = Object.keys(t.backgrounds.gradient).map(k => t.backgrounds.gradient[k]);
   updateDropdownOptions('gradient-menu', gradientTexts);
@@ -368,6 +380,10 @@ function createDropdown(id, options, initialValue, onChange) {
   const valueEl = trigger.querySelector('.dropdown__value');
   let currentValue = initialValue;
 
+  // Give the listbox an accessible name taken from its visible label.
+  const labelEl = trigger.closest('.control-group')?.querySelector('.label');
+  if (labelEl) menu.setAttribute('aria-label', labelEl.textContent.trim());
+
   // Populate options if menu is empty
   if (menu.children.length === 0 && options) {
     options.forEach(opt => {
@@ -377,6 +393,10 @@ function createDropdown(id, options, initialValue, onChange) {
       div.textContent = opt.label;
       div.setAttribute('role', 'option');
       div.setAttribute('aria-selected', 'false');
+      if (opt.family) {
+        div.style.fontFamily = opt.family;
+        div.style.fontSize = '1.05rem';
+      }
       menu.appendChild(div);
     });
   }
@@ -452,18 +472,23 @@ function toggleKbdPanel(open) {
 }
 
 /* ──────────────────────────────────────────────────────
-   COPY QUOTE TO CLIPBOARD
+   COPY CURRENT QUOTE
 ────────────────────────────────────────────────────────── */
-function copyQuote() {
-  if (!currentQuote && !document.getElementById('custom-quote').value.trim()) return;
-  const text = document.getElementById('quote-preview').textContent;
-  const author = document.getElementById('author-preview').textContent;
+function copyCurrentQuote() {
+  if (!currentQuote) return;
+  const text = currentLang === 'es'
+    ? (currentQuote.text_es || currentQuote.text)
+    : currentQuote.text;
+  const author = currentQuote.author && currentQuote.author !== '—' ? currentQuote.author : '';
   const full = author ? `${text}\n${author}` : text;
+
   navigator.clipboard.writeText(full).then(() => {
-    const card = document.getElementById('quote-card');
-    card.classList.add('quote-card--copied');
-    setTimeout(() => card.classList.remove('quote-card--copied'), 900);
     track('quote_copied');
+    const btn = document.getElementById('btn-copy');
+    if (btn) {
+      btn.classList.add('btn--done');
+      setTimeout(() => btn.classList.remove('btn--done'), 900);
+    }
   }).catch(() => {});
 }
 
@@ -488,19 +513,16 @@ async function init() {
     const generateBtn   = document.getElementById('btn-generate');
     const shuffleBtn    = document.getElementById('btn-shuffle');
     const downloadBtn   = document.getElementById('btn-download');
+    const copyBtn       = document.getElementById('btn-copy');
     const tabSolid      = document.getElementById('tab-solid');
     const tabGradient   = document.getElementById('tab-gradient');
     const tabPattern    = document.getElementById('tab-pattern');
     const langEn        = document.getElementById('lang-en');
     const langEs        = document.getElementById('lang-es');
-    const vibeEl        = document.getElementById('vibe-indicator');
-    const quoteEl       = document.getElementById('quote-preview');
-    const authorEl      = document.getElementById('author-preview');
     const canvas        = document.getElementById('canvas');
     const wrapper       = document.getElementById('canvas-wrapper');
     const darkBtn       = document.getElementById('btn-dark-mode');
     const zenBtn        = document.getElementById('btn-zen');
-    const quoteCard     = document.getElementById('quote-card');
     const kbdHintBtn    = document.getElementById('btn-kbd-hint');
     const kbdPanel      = document.getElementById('kbd-panel');
     const customQuoteEl = document.getElementById('custom-quote');
@@ -519,22 +541,36 @@ async function init() {
       draw();
     });
 
-    const fontDropdown = createDropdown('font', FONTS.map(f => ({ value: f.id, label: f.label })), FONTS[0].id, (value) => {
+    const fontDropdown = createDropdown('font', FONTS.map(f => ({ value: f.id, label: f.label, family: f.family })), FONTS[0].id, (value) => {
       currentFont = FONTS.find(f => f.id === value) ?? FONTS[0];
       draw();
     });
 
     const layoutDropdown = createDropdown('layout', null, 'editorial', (value) => {
       currentLayout = value;
-      const layoutIndicator = document.getElementById('layout-current');
-      if (layoutIndicator) layoutIndicator.textContent = currentLayout;
       draw();
     });
 
-    const solidDropdown = createDropdown('solid', null, 'white', (value) => {
-      currentBgValue = value;
-      resolveBackground();
-      draw();
+    // Solid colours are a row of swatches rather than a dropdown.
+    const swatchEls = [...document.querySelectorAll('#solid-swatches .swatch')];
+    const setSwatch = (value) => {
+      swatchEls.forEach(sw => {
+        const on = sw.dataset.value === value;
+        sw.classList.toggle('swatch--active', on);
+        sw.setAttribute('aria-checked', String(on));
+      });
+    };
+    const solidControl = {
+      getValue: () => swatchEls.find(sw => sw.classList.contains('swatch--active'))?.dataset.value || 'white',
+      setValue: (value) => { currentBgValue = value; setSwatch(value); }
+    };
+    swatchEls.forEach(sw => {
+      sw.addEventListener('click', () => {
+        currentBgValue = sw.dataset.value;
+        setSwatch(currentBgValue);
+        resolveBackground();
+        draw();
+      });
     });
 
     const gradientDropdown = createDropdown('gradient', null, 'auto', (value) => {
@@ -569,6 +605,7 @@ async function init() {
       const scale = Math.min(wrapW / canvas.width, wrapH / canvas.height, 1);
       canvas.style.width  = `${Math.round(canvas.width  * scale)}px`;
       canvas.style.height = `${Math.round(canvas.height * scale)}px`;
+      canvas.classList.add('is-ready');
     };
 
     const resolveBackground = () => {
@@ -599,12 +636,6 @@ async function init() {
         author: author || '—',
         vibe: currentVibeFilter === 'all' ? 'calm' : currentVibeFilter
       };
-      quoteEl.textContent  = `"${text}"`;
-      authorEl.textContent = author ? `— ${author}` : '';
-      vibeEl.textContent   = currentQuote.vibe;
-      vibeEl.dataset.vibe  = currentQuote.vibe;
-      const layoutIndicator = document.getElementById('layout-current');
-      if (layoutIndicator) layoutIndicator.textContent = currentLayout;
       return true;
     };
 
@@ -629,7 +660,7 @@ async function init() {
           tabSolid.click();
           const solidOptions = ['white', 'cream', 'ivory', 'sand', 'clay', 'slate', 'charcoal', 'black'];
           currentBgValue = getRandomItem(solidOptions);
-          solidDropdown.setValue(currentBgValue);
+          solidControl.setValue(currentBgValue);
         } else if (currentBgType === 'pattern') {
           tabPattern.click();
           currentBgValue = 'typographic';
@@ -645,24 +676,14 @@ async function init() {
         inkDropdown.setValue('auto');
       } else {
         currentBgType = tabSolid.classList.contains('tab--active') ? 'solid' : tabGradient.classList.contains('tab--active') ? 'gradient' : 'pattern';
-        currentBgValue = currentBgType === 'solid' ? solidDropdown.getValue() : currentBgType === 'gradient' ? gradientDropdown.getValue() : patternDropdown.getValue();
+        currentBgValue = currentBgType === 'solid' ? solidControl.getValue() : currentBgType === 'gradient' ? gradientDropdown.getValue() : patternDropdown.getValue();
         currentLayout = layoutDropdown.getValue();
         currentFont = FONTS.find(f => f.id === fontDropdown.getValue()) ?? FONTS[0];
       }
 
       resolveBackground();
 
-      if (!hasCustom) {
-        vibeEl.textContent   = currentQuote.vibe;
-        vibeEl.dataset.vibe  = currentQuote.vibe;
-        const quoteText = currentQuote[currentLang === 'es' ? 'text_es' : 'text'] || currentQuote.text;
-        quoteEl.textContent  = `"${quoteText}"`;
-        authorEl.textContent = `— ${currentQuote.author}`;
-        const layoutIndicator = document.getElementById('layout-current');
-        if (layoutIndicator) layoutIndicator.textContent = currentLayout;
-      } else {
-        applyCustomQuote();
-      }
+      if (hasCustom) applyCustomQuote();
 
       track('quote_generated', {
         vibe: currentQuote?.vibe || 'custom',
@@ -701,7 +722,7 @@ async function init() {
       document.getElementById('gradient-controls').classList.remove('tab-content--active');
       document.getElementById('pattern-controls').classList.remove('tab-content--active');
       currentBgType  = 'solid';
-      currentBgValue = solidDropdown.getValue();
+      currentBgValue = solidControl.getValue();
       resolveBackground();
       draw();
     });
@@ -753,11 +774,8 @@ async function init() {
     // Zen mode
     zenBtn.addEventListener('click', () => setZen(!isZen));
 
-    // Quote card copy
-    quoteCard.addEventListener('click', () => copyQuote());
-    quoteCard.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copyQuote(); }
-    });
+    // Copy current quote
+    copyBtn.addEventListener('click', () => copyCurrentQuote());
 
     // Vibe filter buttons
     document.querySelectorAll('.vf-btn').forEach(btn => {

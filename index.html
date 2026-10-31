@@ -179,7 +179,7 @@
       </div>
 
       <div class="control-group">
-        <label class="label" for="resolution-select">Resolution</label>
+        <label class="label" for="resolution-trigger">Resolution</label>
         <div class="dropdown" id="resolution-dropdown">
           <button class="dropdown__trigger" id="resolution-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
             <span class="dropdown__value">Desktop — 1920 × 1080</span>
@@ -197,7 +197,7 @@
       </div>
 
       <div class="control-group">
-        <label class="label" for="font-select">Typeface</label>
+        <label class="label" for="font-trigger">Typeface</label>
         <div class="dropdown" id="font-dropdown">
           <button class="dropdown__trigger" id="font-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
             <span class="dropdown__value">—</span>
@@ -209,7 +209,7 @@
       </div>
 
       <div class="control-group">
-        <label class="label" for="layout-select">Layout</label>
+        <label class="label" for="layout-trigger">Layout</label>
         <div class="dropdown" id="layout-dropdown">
           <button class="dropdown__trigger" id="layout-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
             <span class="dropdown__value">Editorial</span>
@@ -223,27 +223,22 @@
       </div>
 
       <div class="control-group">
-        <label class="label">Background</label>
+        <label class="label" id="label-background">Background</label>
         <div class="tabs" id="bg-tabs">
           <button id="tab-solid" class="tab tab--active" type="button">Solid</button>
           <button id="tab-gradient" class="tab" type="button">Gradient</button>
           <button id="tab-pattern" class="tab" type="button">Pattern</button>
         </div>
         <div id="solid-controls" class="tab-content tab-content--active">
-          <div class="dropdown" id="solid-dropdown">
-            <button class="dropdown__trigger" id="solid-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
-              <span class="dropdown__value">Pure White</span>
-            </button>
-            <div class="dropdown__menu" id="solid-menu" role="listbox">
-              <div class="dropdown__option dropdown__option--selected" data-value="white" role="option" aria-selected="true">Pure White</div>
-              <div class="dropdown__option" data-value="cream" role="option" aria-selected="false">Antique Cream</div>
-              <div class="dropdown__option" data-value="ivory" role="option" aria-selected="false">Warm Ivory</div>
-              <div class="dropdown__option" data-value="sand" role="option" aria-selected="false">Soft Sand</div>
-              <div class="dropdown__option" data-value="clay" role="option" aria-selected="false">Grey Clay</div>
-              <div class="dropdown__option" data-value="slate" role="option" aria-selected="false">Cool Slate</div>
-              <div class="dropdown__option" data-value="charcoal" role="option" aria-selected="false">Deep Charcoal</div>
-              <div class="dropdown__option" data-value="black" role="option" aria-selected="false">Pure Black</div>
-            </div>
+          <div class="swatches" id="solid-swatches" role="radiogroup" aria-label="Background colour">
+            <button class="swatch swatch--active" type="button" role="radio" aria-checked="true"  data-value="white"    title="Pure White"    style="--sw:#ffffff"></button>
+            <button class="swatch" type="button" role="radio" aria-checked="false" data-value="cream"    title="Antique Cream" style="--sw:#f5f2e9"></button>
+            <button class="swatch" type="button" role="radio" aria-checked="false" data-value="ivory"    title="Warm Ivory"    style="--sw:#fafaf0"></button>
+            <button class="swatch" type="button" role="radio" aria-checked="false" data-value="sand"     title="Soft Sand"     style="--sw:#f4f1e8"></button>
+            <button class="swatch" type="button" role="radio" aria-checked="false" data-value="clay"     title="Grey Clay"     style="--sw:#dcd0c0"></button>
+            <button class="swatch" type="button" role="radio" aria-checked="false" data-value="slate"    title="Cool Slate"    style="--sw:#708090"></button>
+            <button class="swatch" type="button" role="radio" aria-checked="false" data-value="charcoal" title="Deep Charcoal" style="--sw:#36454f"></button>
+            <button class="swatch" type="button" role="radio" aria-checked="false" data-value="black"    title="Pure Black"    style="--sw:#0a0a0a"></button>
           </div>
         </div>
         <div id="gradient-controls" class="tab-content">
@@ -273,7 +268,7 @@
       </div>
 
       <div class="control-group">
-        <label class="label" for="ink-select">Ink</label>
+        <label class="label" for="ink-trigger">Ink</label>
         <div class="dropdown" id="ink-dropdown">
           <button class="dropdown__trigger" id="ink-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
             <span class="dropdown__value">Auto — Contrast</span>
@@ -289,36 +284,24 @@
       </div>
 
       <!-- Custom quote -->
-      <div class="control-group">
-        <label class="label" for="custom-quote">Custom Quote</label>
-        <textarea id="custom-quote" class="textarea" rows="3" placeholder="Type your own quote…" spellcheck="false"></textarea>
-        <input id="custom-author" class="input" type="text" placeholder="Author (optional)" />
-      </div>
+      <details class="group" id="custom-group">
+        <summary class="group__summary" id="custom-quote-label">Custom Quote</summary>
+        <div class="group__body">
+          <textarea id="custom-quote" class="textarea" rows="2" placeholder="Type your own quote…" spellcheck="false"></textarea>
+          <input id="custom-author" class="input" type="text" placeholder="Author (optional)" />
+        </div>
+      </details>
 
-      <div class="btn-group">
+      <div class="actions">
         <button id="btn-generate" class="btn btn--primary" title="New Quote (Space)" type="button">Next Quote</button>
-        <button id="btn-shuffle" class="btn" title="Randomize Style (S)" type="button">Shuffle</button>
+        <button id="btn-shuffle" class="btn btn--icon" title="Randomize style (S)" aria-label="Randomize style" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        </button>
         <button id="btn-download" class="btn" title="Download (D)" type="button">Download</button>
+        <button id="btn-copy" class="btn btn--icon" title="Copy quote" aria-label="Copy quote" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
       </div>
-
-      <div class="divider"></div>
-
-      <div class="meta">
-        <div class="meta__row">
-          <span class="label">Vibe</span>
-          <span id="vibe-indicator" class="vibe-pill" data-vibe="">—</span>
-        </div>
-        <div class="meta__row">
-          <span class="label">Layout</span>
-          <span id="layout-current" class="meta__value">—</span>
-        </div>
-      </div>
-
-      <blockquote class="quote-card" id="quote-card" aria-live="polite" title="Click to copy" tabindex="0" role="button">
-        <p id="quote-preview" class="quote-card__text">Press Generate to create a wallpaper.</p>
-        <footer id="author-preview" class="quote-card__author"></footer>
-        <span class="quote-card__copy-hint" id="copy-hint" aria-hidden="true">Copied</span>
-      </blockquote>
 
       <p class="sidebar__footer" id="sidebar-footer">— quotes · 3 vibes · 10 typefaces · 1 pattern</p>
 
